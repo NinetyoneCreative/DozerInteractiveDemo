@@ -29,6 +29,7 @@ export function CoverageSlide({
   title,
   machine,
   environment,
+  cameras,
   callout,
   interact,
 }: {
@@ -36,6 +37,7 @@ export function CoverageSlide({
   title: string;
   machine: 'excavator' | 'wheelLoader';
   environment: 'studio' | 'street' | 'dirt' | 'urban';
+  cameras: 'all' | 'single';
   callout: string;
   interact: boolean;
 }) {
@@ -54,6 +56,7 @@ export function CoverageSlide({
           <CameraCoverageClient
             initialMachine={machine}
             initialEnvironment={environment}
+            initialShowAllCameras={cameras === 'all'}
             height="770px"
           />
         </div>

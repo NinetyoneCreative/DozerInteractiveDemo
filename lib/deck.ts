@@ -31,7 +31,19 @@ export type Slide =
     }
   | { kind: 'points'; intro?: string; columns?: 2 | 3; points: Point[] }
   | { kind: 'system'; highlight?: 'machine' | 'cab' | 'cloud' | null }
-  | { kind: 'coverage'; machine: 'excavator' | 'wheelLoader'; environment: 'studio' | 'street' | 'dirt' | 'urban'; callout: string }
+  | {
+      kind: 'coverage';
+      machine: 'excavator' | 'wheelLoader';
+      environment: 'studio' | 'street' | 'dirt' | 'urban';
+      /**
+       * Which way the module's all/single comparison is set when the step
+       * arrives. Stated on EVERY coverage step, not just the one that wants
+       * 'single' — otherwise stepping back from the comparison leaves the
+       * module on one camera while the slide is talking about three.
+       */
+      cameras: 'all' | 'single';
+      callout: string;
+    }
   | { kind: 'dashboard'; focus: DashboardFocus; callout: string }
   | { kind: 'incab'; focus: Sector; callout: string }
   | { kind: 'events' }
@@ -251,6 +263,7 @@ const SPEC: ChapterSpec[] = [
           kind: 'coverage',
           machine: 'excavator',
           environment: 'studio',
+          cameras: 'all',
           callout: 'Blue is covered ground. Drag to orbit. Swing the house and watch the gaps move with it.',
         },
         notes: [
@@ -269,12 +282,14 @@ const SPEC: ChapterSpec[] = [
           kind: 'coverage',
           machine: 'excavator',
           environment: 'street',
-          callout: 'Turn “All cameras” off. That is what a single rear camera actually gives you.',
+          cameras: 'single',
+          callout: 'One camera instead of three. This is the ground it leaves you.',
         },
         notes: [
-          'Most sites already have a reversing camera on something. This is the slide that explains why that is not the same purchase.',
-          'Switch to the single-camera comparison in the panel and let the blue collapse. Do not narrate the number, let them read it.',
-          'Then turn it back on. The jump is the argument. You do not need to add anything to it.',
+          'The slide arrives already switched to one camera — you do not have to find the toggle mid-sentence. Let them look at it before you say anything.',
+          'Most sites already have a camera on something. This is the slide that explains why that is not the same purchase.',
+          'Then press I and switch “Single front” back to “All cameras” in the panel. The jump in blue is the argument; you do not need to add anything to it.',
+          'If anyone asks which camera is left on: it is the front-right unit, not a reversing camera. The point is one versus three, not which one.',
         ],
       },
       {
@@ -286,6 +301,7 @@ const SPEC: ChapterSpec[] = [
           kind: 'coverage',
           machine: 'wheelLoader',
           environment: 'dirt',
+          cameras: 'all',
           callout: 'Raise the arms. Coverage in front of the machine gets worse, not better.',
         },
         notes: [

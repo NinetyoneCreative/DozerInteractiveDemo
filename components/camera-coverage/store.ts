@@ -49,11 +49,15 @@ interface CoverageStore {
   setShowFrusta: (v: boolean) => void;
   setEnvironment: (e: EnvironmentKey) => void;
   /**
-   * Sets the starting machine and environment without counting as user input, so
-   * an embed can open on a chosen configuration and still auto-rotate until the
-   * visitor actually touches it.
+   * Sets the starting machine, environment and all/single comparison without
+   * counting as user input, so an embed — or a slide — can open on a chosen
+   * configuration and still auto-rotate until someone actually touches it.
    */
-  initialize: (opts: { machine?: MachineKey; environment?: EnvironmentKey }) => void;
+  initialize: (opts: {
+    machine?: MachineKey;
+    environment?: EnvironmentKey;
+    showAllCameras?: boolean;
+  }) => void;
   setWorker: (index: number, x: number, z: number) => void;
   selectWorker: (id: string | null) => void;
   setCoverage: (c: CoverageResult) => void;
@@ -137,12 +141,16 @@ export const useCoverageStore = create<CoverageStore>((set) => ({
 
   setEnvironment: (environment) => set({ environment, interacted: true }),
 
-  initialize: ({ machine, environment }) =>
+  initialize: ({ machine, environment, showAllCameras }) =>
     set((s) => ({
       ...(machine && machine !== s.machineKey
         ? { ...initial(machine), viewEpoch: s.viewEpoch }
         : {}),
       ...(environment ? { environment } : {}),
+      // AFTER the machine spread, deliberately: switching machines runs
+      // initial(), which resets showAllCameras to true, so setting it before
+      // would be silently undone on any step that also changes machine.
+      ...(showAllCameras === undefined ? {} : { showAllCameras }),
       interacted: s.interacted,
       revision: s.revision + 1,
     })),

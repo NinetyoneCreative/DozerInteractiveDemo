@@ -143,6 +143,12 @@ export interface CameraCoverageProps {
   /** Environment to open on. Defaults to the studio. */
   initialEnvironment?: EnvironmentKey;
   /**
+   * Open on the full package (true) or on the single-camera comparison (false).
+   * Defaults to the full package. Lets a host open straight onto the comparison
+   * instead of asking the presenter to find the toggle mid-sentence.
+   */
+  initialShowAllCameras?: boolean;
+  /**
    * Desktop height of the module, any CSS length. The embed route sizes itself
    * from this and reports it to the host page.
    */
@@ -152,6 +158,7 @@ export interface CameraCoverageProps {
 export default function CameraCoverage({
   initialMachine,
   initialEnvironment,
+  initialShowAllCameras,
   height,
 }: CameraCoverageProps = {}) {
   const [webgl, setWebgl] = useState<boolean | null>(null);
@@ -167,10 +174,14 @@ export default function CameraCoverage({
 
   const initialize = useCoverageStore((s) => s.initialize);
   useEffect(() => {
-    if (initialMachine || initialEnvironment) {
-      initialize({ machine: initialMachine, environment: initialEnvironment });
+    if (initialMachine || initialEnvironment || initialShowAllCameras !== undefined) {
+      initialize({
+        machine: initialMachine,
+        environment: initialEnvironment,
+        showAllCameras: initialShowAllCameras,
+      });
     }
-  }, [initialMachine, initialEnvironment, initialize]);
+  }, [initialMachine, initialEnvironment, initialShowAllCameras, initialize]);
 
   const machineKey = useCoverageStore((s) => s.machineKey);
   const setRig = useCoverageStore((s) => s.setRig);

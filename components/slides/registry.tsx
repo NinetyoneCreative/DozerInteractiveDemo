@@ -73,6 +73,7 @@ export function renderStep(
           title={step.title}
           machine={s.machine}
           environment={s.environment}
+          cameras={s.cameras}
           callout={s.callout}
           interact={interact}
         />
