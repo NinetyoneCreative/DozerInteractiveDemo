@@ -6,7 +6,11 @@ next-env.d.ts
 .DS_Store
 .env*.local
 
-# The raw screen recordings. These are the large masters that scripts/
-# make-clips.mjs cuts from; only the small clips it emits into public/clips
-# belong in the repo.
+# Raw screen recordings — the large masters that scripts/make-clips.mjs cuts
+# from. Only the small clips it emits into public/clips belong in the repo.
+#
+# NOTE: /incoming/ is deliberately NOT ignored. It is the hand-off path for
+# getting a master into the repo once, so that `git add` does not silently skip
+# it. Once its clips are cut, the master is deleted again and only the clips
+# remain.
 /assets/
