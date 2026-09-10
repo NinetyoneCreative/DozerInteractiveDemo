@@ -553,12 +553,12 @@ const SPEC: ChapterSpec[] = [
           columns: 3,
           points: [
             {
-              title: 'The machines, for a window',
-              body: 'Fitting happens on your yard. We work to the schedule you give us, not the other way round.',
+              title: 'The machine, for a window',
+              body: 'Fitting happens on your yard, on one machine, in one visit. We work to the schedule you give us, not the other way round.',
             },
             {
               title: 'One person who knows the fleet',
-              body: 'Someone who can tell us which machines matter and what they actually do. Usually an equipment manager, and usually for an hour.',
+              body: 'Someone who can tell us which machine matters and what it actually does. Usually an equipment manager, and usually for an hour.',
             },
             {
               title: 'Your cost codes',
@@ -582,7 +582,7 @@ const SPEC: ChapterSpec[] = [
             {
               when: 'Week 0',
               title: 'Scope',
-              body: 'Which machines, which cost codes, who gets the reports. An hour with your equipment manager.',
+              body: 'Which machine, which cost codes, who gets the reports. An hour with your equipment manager.',
             },
             {
               when: 'Week 1',
@@ -600,16 +600,21 @@ const SPEC: ChapterSpec[] = [
               body: 'Enough hours banked for the comparison to mean something. Before this it is a chart of not very much.',
             },
             {
+              when: 'Day 21',
+              title: 'Mid-point read-out',
+              body: 'Half way. Enough banked to see the shape, early enough to change something.',
+            },
+            {
               when: 'Day 45',
-              title: 'Read-out',
-              body: 'We sit down with your numbers, not our demo ones.',
+              title: 'End of pilot',
+              body: 'We sit down with your numbers, not our demo ones, and you decide.',
             },
           ],
         },
         notes: [
           'The important beat is week one: safety is live immediately. It does not need a baseline, because an alert does not need history to be right.',
           'Be honest that productivity needs about three weeks before the comparisons are worth reading. Saying so makes the week-one claim believable.',
-          'The day-45 read-out is the one to sell hardest. It is the moment the pilot stops being a trial and starts being a renewal conversation.',
+          'Day 45 is the whole pilot, so sell that date hardest — it is not a checkpoint, it is the decision. The day-21 read-out is what stops it arriving as a surprise.',
         ],
       },
       {
@@ -651,12 +656,13 @@ const SPEC: ChapterSpec[] = [
     steps: [
       {
         eyebrow: 'The offer',
-        title: 'Put it on four machines',
+        title: `Put it on ${PILOT.machines.toLowerCase()}`,
         seconds: 120,
         slide: { kind: 'pilot' },
         notes: [
-          `⚠ CHECK THE TERMS ON THIS SLIDE BEFORE THE CALL. They live in lib/demoData.ts under PILOT and the price currently reads "${PILOT.price}".`,
-          'Pick the four machines with them, on the call if you can. The ones that worry them, not the ones that demo well.',
+          `⚠ CHECK THE TERMS ON THIS SLIDE BEFORE THE CALL. They live in lib/demoData.ts under PILOT and the fee currently reads "${PILOT.price}".`,
+          `${PILOT.machines}, ${PILOT.duration}, one fee. Say all three in one breath — the offer is small on purpose, and stringing it out makes it sound bigger than it is.`,
+          'Pick the machine with them, on the call if you can. The one that worries them, not the one that demos well. A single machine makes that an easy question to answer rather than a scheduling exercise.',
           'The exit clause is the part to say slowly. Removing the risk of being stuck is usually worth more to this audience than anything you could discount.',
           'Then stop talking. The next person to speak should be them.',
         ],

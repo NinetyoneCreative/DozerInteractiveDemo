@@ -391,22 +391,36 @@ export const AI_REPORT = {
 } as const;
 
 /* ── The pilot offer ─────────────────────────────────────────────────────────
- * ⚠ CONFIRM THESE BEFORE YOU PRESENT. The brief that specified this deck did
- * not state the commercial terms, so these are structural placeholders — the
- * right SHAPE of an offer, with numbers that have not been signed off by
- * anyone. Fix them here and the close chapter updates itself.
+ * One machine, 45 days, one small fee. Deliberately the smallest thing a
+ * contractor can say yes to without convening anyone.
+ *
+ * Everything the close chapter says about the offer is read from here — the
+ * slide, its heading, and the speaker notes — so this is the only place to
+ * change it. The fee amount is the one value still outstanding; see below.
  */
 export const PILOT = {
-  machines: '4 machines',
-  duration: '90 days',
+  machines: 'One machine',
+  duration: '45 days',
   install: 'Installed on your yard, in one visit',
-  price: 'TBC — confirm before presenting',
+  /**
+   * ⚠ SET THE AMOUNT BEFORE YOU PRESENT.
+   *
+   * The offer is a single small fee — one line, no per-seat, no per-suite, no
+   * setup charge on top — which is the whole point of it: a number small enough
+   * that nobody has to build a business case to say yes. The FIGURE has not
+   * been given to me, so it is not written here. Put it in and the warning
+   * styling on the close slide disappears on its own.
+   *
+   * The slide flags any value still containing "confirm" or "TBC" in yellow,
+   * so an unset price cannot quietly reach a prospect looking like a real one.
+   */
+  price: 'One flat fee — confirm the amount',
   includes: [
-    'Full camera and depth-sensor package on every pilot machine',
+    'Full camera and depth-sensor package on the pilot machine',
     'In-cab alerting live from day one',
     'Safety and Productivity suites, both switched on',
     'Weekly AI report to whoever you nominate',
-    'A read-out session with your team at day 45 and day 90',
+    'A read-out session with your team at day 21 and day 45',
   ],
   exit: 'Uninstall at the end at no cost if you do not continue.',
 } as const;

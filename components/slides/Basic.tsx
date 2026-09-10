@@ -209,7 +209,13 @@ export function TimelineSlide({
         {/* The spine. Sits behind the markers, at their vertical centre. */}
         <div className="absolute left-0 right-0 top-[70px] h-px bg-dozer-muted/40" />
 
-        <div className="relative grid grid-cols-5 gap-5">
+        {/* Column count follows the data. It was pinned at 5, so adding the
+            day-21 read-out silently wrapped the last phase onto a second row
+            underneath the spine. */}
+        <div
+          className="relative grid gap-5"
+          style={{ gridTemplateColumns: `repeat(${phases.length}, minmax(0, 1fr))` }}
+        >
           {phases.map((p, i) => (
             <Reveal key={`${p.when}-${p.title}`} delay={0.06 + i * 0.07}>
               <div className="flex flex-col">
@@ -242,7 +248,13 @@ export function PilotSlide() {
   const priceUnconfirmed = /tbc|confirm/i.test(PILOT.price);
 
   return (
-    <SlideFrame eyebrow="The offer" title="Put it on four machines for 90 days">
+    /* Heading built from PILOT rather than typed out. It said "four machines
+       for 90 days" while the terms underneath it said something else, which is
+       exactly the kind of thing a prospect reads out loud back to you. */
+    <SlideFrame
+      eyebrow="The offer"
+      title={`Put it on ${PILOT.machines.toLowerCase()} for ${PILOT.duration}`}
+    >
       <div className="grid grid-cols-[1.15fr_1fr] gap-8">
         <Reveal delay={0.05}>
           <Card className="h-full p-10" accent>
@@ -309,8 +321,8 @@ export function CloseSlide() {
   const next: Point[] = [
     {
       stat: 'Today',
-      title: 'Pick the machines',
-      body: 'Four, chosen by you. The ones you worry about, not the ones that demo well.',
+      title: 'Pick the machine',
+      body: 'One, chosen by you. The one you worry about, not the one that demos well.',
     },
     {
       stat: 'This week',
