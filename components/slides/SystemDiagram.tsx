@@ -184,28 +184,53 @@ function StageArt({ stage, lit }: { stage: Stage; lit: boolean }) {
   const accent = lit ? '#fdac13' : '#a7aab1';
 
   if (stage === 'machine') {
+    /*
+     * Redrawn. The previous version was a box on tracks with a thin line for a
+     * boom and camera dots scattered over it, joined by dashes that read as
+     * noise rather than as sight lines — at plate size you could not tell what
+     * it was a picture of.
+     *
+     * Three things fixed. The machine is drawn as a recognisable excavator
+     * (tracks, house, cab, boom, stick, bucket) so it reads as heavy equipment
+     * at a glance. The cameras are the only accented element, because they are
+     * what the plate is about. And their coverage splays OUTWARD onto a ground
+     * line rather than arcing over the roof — that is where it actually falls,
+     * and it stops the cones cutting across the machine body.
+     */
     return (
       <svg width="200" height="96" viewBox="0 0 200 96" fill="none" aria-hidden>
-        {/* Tracks */}
-        <rect x="42" y="70" width="94" height="16" rx="8" stroke={line} strokeWidth="1.6" />
-        <circle cx="56" cy="78" r="3" fill={line} />
-        <circle cx="122" cy="78" r="3" fill={line} />
-        {/* House */}
-        <path d="M62 70 V44 H118 V70" stroke={line} strokeWidth="1.6" strokeLinejoin="round" />
-        <path d="M70 44 V32 H100 V44" stroke={line} strokeWidth="1.6" strokeLinejoin="round" />
-        {/* Boom */}
-        <path
-          d="M118 50 L156 30 L168 46"
+        <g
           stroke={line}
           strokeWidth="1.6"
           strokeLinecap="round"
           strokeLinejoin="round"
-        />
-        {/* Camera positions, and the ground they see */}
-        <circle cx="70" cy="34" r="3.4" fill={accent} />
-        <circle cx="118" cy="46" r="3.4" fill={accent} />
-        <circle cx="62" cy="60" r="3.4" fill={accent} />
-        <path d="M70 34 L34 88 M70 34 L96 88" stroke={accent} strokeWidth="1" strokeDasharray="2 4" />
+          fill="none"
+        >
+          {/* Ground the cameras cover */}
+          <path d="M31 39 L3 85 H45 Z" fill={accent} fillOpacity="0.15" stroke={accent} strokeDasharray="3 3.5" />
+          <path d="M104 39 L99 85 H147 Z" fill={accent} fillOpacity="0.15" stroke={accent} strokeDasharray="3 3.5" />
+          <path d="M2 85 H168" stroke="#a7aab1" strokeWidth="1.2" />
+
+          {/* Tracks, house, cab */}
+          <rect x="26" y="59" width="88" height="16" rx="8" />
+          <circle cx="40" cy="67" r="2.2" fill={line} stroke="none" />
+          <circle cx="100" cy="67" r="2.2" fill={line} stroke="none" />
+          <path d="M32 59 V41 H104 V59" />
+          <path d="M44 41 V25 H70 V41" />
+          <path d="M48 29 H66 V38 H48 Z" stroke="#a7aab1" />
+
+          {/* Boom, stick, bucket */}
+          <path d="M104 46 L134 19" />
+          <path d="M134 19 L151 40" />
+          <path d="M151 40 L161 44 L157 54 L147 50 Z" />
+
+          {/* The cameras */}
+          <g fill={accent} stroke={accent}>
+            <rect x="27" y="35" width="7.5" height="6" rx="1.8" />
+            <rect x="53" y="20" width="7.5" height="6" rx="1.8" />
+            <rect x="101" y="35" width="7.5" height="6" rx="1.8" />
+          </g>
+        </g>
       </svg>
     );
   }
