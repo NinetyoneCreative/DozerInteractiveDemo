@@ -1,0 +1,24 @@
+{
+  "_comment": [
+    "Cut list for scripts/make-clips.mjs.",
+    "",
+    "'source' is the raw screen recording, relative to the repo root. It is",
+    "gitignored \u2014 it is the large master, and only the small cut clips belong",
+    "in the repo.",
+    "",
+    "'width' is the output width in pixels. The phone on the stage is about",
+    "380px wide at 1920x1080, so 800 is roughly 2x for a sharp result without",
+    "shipping the full capture resolution.",
+    "",
+    "Each clip: 'name' is the basename the <Clip> component references,",
+    "'start' and 'duration' are seconds, and 'crop' is an optional",
+    "'w:h:x:y' in SOURCE pixels \u2014 use it to trim a device recording down to",
+    "just the app's screen area.",
+    "",
+    "The clips array is empty until the recording is in hand and the sections",
+    "have been timed off it."
+  ],
+  "source": "assets/new_dashboard_recording.mp4",
+  "width": 800,
+  "clips": []
+}

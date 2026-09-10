@@ -5,3 +5,8 @@ out/
 next-env.d.ts
 .DS_Store
 .env*.local
+
+# The raw screen recordings. These are the large masters that scripts/
+# make-clips.mjs cuts from; only the small clips it emits into public/clips
+# belong in the repo.
+/assets/

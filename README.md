@@ -84,6 +84,54 @@ The demo jobsite is **Smith Denison**, set in `JOBSITE` at the top of the same f
 
 ---
 
+## The mobile app chapter
+
+The pieces are in place; the content waits on the recording.
+
+```
+components/mobile/PhoneFrame.tsx   neutral phone body, sized by SCREEN height
+components/mobile/Clip.tsx         one looping clip, with all the autoplay caveats
+scripts/make-clips.mjs             cuts the recording into those clips
+scripts/clips.manifest.json        the cut list — currently empty
+public/clips/                      where the encoded clips land
+```
+
+### Producing the clips
+
+Put the raw recording at `assets/` (gitignored — it is the large master, and only
+the small cut clips belong in the repo), list the sections in
+`scripts/clips.manifest.json`, then:
+
+```bash
+# ffmpeg from PATH, or point FFMPEG at one:
+FFMPEG=$(python3 -c "import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())") \
+  node scripts/make-clips.mjs
+
+node scripts/make-clips.mjs --only alerts   # just one, while tuning its timing
+```
+
+Each manifest entry emits three files: `<name>.webm` (VP9, preferred),
+`<name>.mp4` (H.264, universal fallback) and `<name>.jpg` (first frame). Both
+encodes are silent — the clips autoplay, autoplay requires muting, so an audio
+track would be dead weight in every byte a prospect downloads.
+
+The script exists rather than a one-off command because clips are binaries, and a
+binary in a repo with no recipe next to it is something nobody can regenerate when
+the app UI changes. Edit the manifest, re-run, commit.
+
+### Why `Clip.tsx` is more than a `<video>` tag
+
+`muted` and `playsInline` together are what make autoplay legal — without both,
+the rep gets a frozen frame with a play button on it in front of a prospect.
+`play()` rejects under autoplay policy, so it is caught and falls back to the
+poster rather than leaving an uncaught rejection on every step change. Clips only
+mount while their step is on screen, because a chapter of recordings would
+otherwise decode all of them at once on a laptop already running WebGL and
+screen-sharing. Returning to a step restarts the clip from the top. And under
+`prefers-reduced-motion` nothing autoplays at all.
+
+---
+
 ## The logo
 
 The wordmark lives at `public/logo.svg` and is used on the cover and the closing
