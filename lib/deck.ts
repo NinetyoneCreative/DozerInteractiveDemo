@@ -21,7 +21,14 @@ import { JOBSITE, PILOT } from './demoData';
 export type Slide =
   | { kind: 'cover' }
   | { kind: 'agenda' }
-  | { kind: 'statement'; lead: string; sub?: string; stat?: { value: string; label: string } }
+  | {
+      kind: 'statement';
+      lead: string;
+      sub?: string;
+      stat?: { value: string; label: string };
+      /** A real frame from site footage. See ProductShot in components/slides/Frame.tsx. */
+      image?: { src: string; alt: string; caption: string };
+    }
   | { kind: 'points'; intro?: string; columns?: 2 | 3; points: Point[] }
   | { kind: 'system'; highlight?: 'machine' | 'cab' | 'cloud' | null }
   | { kind: 'coverage'; machine: 'excavator' | 'wheelLoader'; environment: 'studio' | 'street' | 'dirt' | 'urban'; callout: string }
@@ -33,17 +40,34 @@ export type Slide =
   | { kind: 'pilot' }
   | { kind: 'close' };
 
+/**
+ * Icons the script can call for. The union lives here rather than in the icon
+ * component for the same reason as DashboardFocus and Sector: this file imports
+ * nothing from components/, and choosing which icon a point carries is a
+ * content decision, not a rendering one. components/slides/Icons.tsx draws them.
+ */
+export type IconName =
+  | 'camera' | 'depth' | 'alert' | 'clip'
+  | 'leading' | 'evidence' | 'record'
+  | 'gauge' | 'costcode' | 'report'
+  | 'machine' | 'person'
+  | 'operator' | 'clipboard' | 'owner'
+  | 'scope' | 'install' | 'live' | 'chart' | 'readout' | 'flag'
+  | 'calendar';
+
 export interface Point {
   title: string;
   body: string;
   /** Optional mono stat shown above the title. */
   stat?: string;
+  icon?: IconName;
 }
 
 export interface Phase {
   when: string;
   title: string;
   body: string;
+  icon?: IconName;
 }
 
 /**
@@ -290,14 +314,17 @@ const SPEC: ChapterSpec[] = [
           points: [
             {
               title: 'In-cab operator alerts',
+              icon: 'alert',
               body: 'The operator is told while the machine is moving, in the seat, not in a report on Friday.',
             },
             {
               title: 'Proximity detection',
+              icon: 'depth',
               body: 'Depth sensing means the system knows how far away a person is, so the alert has a threshold instead of firing at every shadow.',
             },
             {
               title: 'Event recording',
+              icon: 'clip',
               body: 'Every alert has video attached to it. Nobody has to reconstruct what happened from memory.',
             },
           ],
@@ -316,6 +343,11 @@ const SPEC: ChapterSpec[] = [
           kind: 'statement',
           lead: 'An operator who has been alerted for nothing three times will ignore the fourth one.',
           sub: 'That is why coverage and depth matter more than alert volume. The number that counts is not how many alerts fired — it is how many of them the operator acted on.',
+          image: {
+            src: '/product/rear-detection.jpg',
+            alt: 'Rear camera feed with a truck and a car boxed and classified, each carrying a distance and bearing',
+            caption: 'Rear feed — classified, with a distance on each',
+          },
         },
         notes: [
           'Bring the alarm-fatigue objection up yourself if they have not. It is the single most common reason these systems get ripped out, and pretending it is not real damages you.',
@@ -345,14 +377,17 @@ const SPEC: ChapterSpec[] = [
           points: [
             {
               title: 'Leading indicators, not lagging',
+              icon: 'leading',
               body: 'Proximity alerts are near-misses you can count before anyone is hurt. Most sites only have the incidents.',
             },
             {
               title: 'Toolbox talks with evidence',
+              icon: 'evidence',
               body: 'A specific machine, a specific window, a specific clip. Crews argue with generalities and not with footage.',
             },
             {
               title: 'A defensible record',
+              icon: 'record',
               body: 'When you are asked what you had in place, the answer has dates on it.',
             },
           ],
@@ -484,6 +519,11 @@ const SPEC: ChapterSpec[] = [
           kind: 'statement',
           lead: 'The hardware that watches for people is watching the machine the rest of the time.',
           sub: 'Utilization, job cost codes and written reports come off the same install. No second box, no second decision.',
+          image: {
+            src: '/product/machine-plan.jpg',
+            alt: 'Top-down view of the excavator with its proximity zones drawn around it',
+            caption: 'The same machine, the same install',
+          },
         },
         notes: [
           'The transition matters. You have spent four chapters on safety, and safety buyers do not automatically care about utilization.',
@@ -502,16 +542,19 @@ const SPEC: ChapterSpec[] = [
             {
               stat: 'Metered',
               title: 'Utilization',
+              icon: 'gauge',
               body: 'Engine hours against working hours, per machine and per fleet. Measured off the machine, not off a timesheet filled in at the end of the week.',
             },
             {
               stat: 'Coded',
               title: 'Job cost codes',
+              icon: 'costcode',
               body: 'Hours land against the code the work was booked to, so the job cost report and the machine agree with each other.',
             },
             {
               stat: 'Written',
               title: 'AI reports',
+              icon: 'report',
               body: 'A weekly summary in prose that names what moved, what it cost, and what is worth looking at on Monday.',
             },
           ],
@@ -667,14 +710,17 @@ const SPEC: ChapterSpec[] = [
           points: [
             {
               title: 'The machine, for a window',
+              icon: 'machine',
               body: 'Fitting happens on your yard, on one machine, in one visit. We work to the schedule you give us, not the other way round.',
             },
             {
               title: 'One person who knows the fleet',
+              icon: 'person',
               body: 'Someone who can tell us which machine matters and what it actually does. Usually an equipment manager, and usually for an hour.',
             },
             {
               title: 'Your cost codes',
+              icon: 'costcode',
               body: 'So the productivity side reports in your language from the first week instead of ours.',
             },
           ],
@@ -695,31 +741,37 @@ const SPEC: ChapterSpec[] = [
             {
               when: 'Week 0',
               title: 'Scope',
+              icon: 'scope',
               body: 'Which machine, which cost codes, who gets the reports. An hour with your equipment manager.',
             },
             {
               when: 'Week 1',
               title: 'Install',
+              icon: 'install',
               body: 'Cameras and depth sensors fitted on your yard, to your schedule.',
             },
             {
               when: 'Week 1',
               title: 'Alerts live',
+              icon: 'live',
               body: 'The safety suite works from the moment the machine leaves the yard. Nothing waits on a data history.',
             },
             {
               when: 'Week 3',
               title: 'First real report',
+              icon: 'chart',
               body: 'Enough hours banked for the comparison to mean something. Before this it is a chart of not very much.',
             },
             {
               when: 'Day 21',
               title: 'Mid-point read-out',
+              icon: 'readout',
               body: 'Half way. Enough banked to see the shape, early enough to change something.',
             },
             {
               when: 'Day 45',
               title: 'End of pilot',
+              icon: 'flag',
               body: 'We sit down with your numbers, not our demo ones, and you decide.',
             },
           ],
@@ -740,14 +792,17 @@ const SPEC: ChapterSpec[] = [
           points: [
             {
               title: 'Nothing for the operator to do',
+              icon: 'operator',
               body: 'No app to open, no button to remember. The alert finds them in the seat.',
             },
             {
               title: 'Nothing for the foreman to file',
+              icon: 'clipboard',
               body: 'The hours and the events are captured without anyone writing them down.',
             },
             {
               title: 'One person owns the dashboard',
+              icon: 'owner',
               body: 'Someone has to read the weekly report for it to be worth anything. Pick them before we start, not after.',
             },
           ],

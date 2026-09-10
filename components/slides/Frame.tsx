@@ -178,3 +178,56 @@ export function Logo({ width, className = '' }: { width: number; className?: str
     />
   );
 }
+
+/**
+ * A still from the product, on a light slide.
+ *
+ * Every one of these is a real frame from site footage, not a mock-up, which is
+ * the only reason they earn their place — a rendered approximation of a product
+ * screenshot is worth less than no screenshot at all in front of someone who
+ * will see the real thing in week one of a pilot.
+ *
+ * They arrive with the app's own dark background attached, so they sit on a
+ * near-black plate rather than being cut out. Cutting them out would mean keying
+ * a dark UI off a dark background, which goes wrong at exactly the edges people
+ * look at.
+ */
+export function ProductShot({
+  src,
+  alt,
+  caption,
+  className = '',
+  imageClassName = '',
+  fit = 'fill',
+}: {
+  src: string;
+  alt: string;
+  caption?: string;
+  className?: string;
+  imageClassName?: string;
+  /**
+   * 'fill' — the plate takes the column width and the image fills it.
+   * 'hug'  — the plate shrinks to the image. Portrait stills need this: at
+   *          'fill' the plate stayed 620px wide around a 266px-wide machine and
+   *          read as a large empty rectangle with a small render lost in it.
+   */
+  fit?: 'fill' | 'hug';
+}) {
+  return (
+    <figure className={`flex flex-col ${className}`}>
+      <div
+        className={`overflow-hidden rounded-card border border-dozer-muted/40 bg-[#242331] ${
+          fit === 'hug' ? 'mx-auto w-fit' : ''
+        }`}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt={alt} className={imageClassName || 'block w-full'} />
+      </div>
+      {caption && (
+        <figcaption className="mt-3 font-mono text-[11px] uppercase tracking-eyebrow text-dozer-muted">
+          {caption}
+        </figcaption>
+      )}
+    </figure>
+  );
+}

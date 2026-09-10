@@ -43,7 +43,7 @@ export function renderStep(
       return <AgendaSlide />;
 
     case 'statement':
-      return <StatementSlide lead={s.lead} sub={s.sub} stat={s.stat} />;
+      return <StatementSlide lead={s.lead} sub={s.sub} stat={s.stat} image={s.image} />;
 
     case 'points':
       return (

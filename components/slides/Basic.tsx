@@ -8,7 +8,8 @@
 import { CHAPTERS, TOTAL_SECONDS, formatClock } from '@/lib/deck';
 import type { Phase, Point } from '@/lib/deck';
 import { PILOT } from '@/lib/demoData';
-import { Card, GUTTER, Logo, Reveal, SlideFrame } from './Frame';
+import { Card, GUTTER, Logo, ProductShot, Reveal, SlideFrame } from './Frame';
+import { Icon } from './Icons';
 
 /* ── Cover ───────────────────────────────────────────────────────────────── */
 
@@ -94,15 +95,26 @@ export function StatementSlide({
   lead,
   sub,
   stat,
+  image,
 }: {
   lead: string;
   sub?: string;
   stat?: { value: string; label: string };
+  image?: { src: string; alt: string; caption: string };
 }) {
+  /* With a still alongside it, the copy gives up half the width — otherwise the
+     lead line runs to 1500px and the image reads as an afterthought pinned to
+     the edge rather than as the evidence for the sentence next to it. */
   return (
     <div className={`flex h-full flex-col justify-center ${GUTTER} pb-16`}>
+      <div className={image ? 'grid grid-cols-[1fr_620px] items-center gap-20' : ''}>
+        <div>
       <Reveal>
-        <p className="max-w-[1500px] text-[54px] font-medium leading-[1.16] tracking-[-0.015em] text-dozer-heading">
+        <p
+          className={`text-[54px] font-medium leading-[1.16] tracking-[-0.015em] text-dozer-heading ${
+            image ? '' : 'max-w-[1500px]'
+          }`}
+        >
           {lead}
         </p>
       </Reveal>
@@ -125,6 +137,25 @@ export function StatementSlide({
           </div>
         </Reveal>
       )}
+        </div>
+
+        {image && (
+          <Reveal delay={0.12}>
+            {/* Capped by HEIGHT and centred, not stretched to the column width.
+                The plan render is portrait (520x1055); filling a 620px column
+                with it made it 1258px tall and pushed the slide off both ends of
+                the stage. object-contain is seamless here because the plate is
+                the same #242331 the stills were cut from. */}
+            <ProductShot
+              src={image.src}
+              alt={image.alt}
+              caption={image.caption}
+              imageClassName="block max-h-[540px] w-auto"
+              fit="hug"
+            />
+          </Reveal>
+        )}
+      </div>
     </div>
   );
 }
@@ -158,12 +189,21 @@ export function PointsSlide({
         {points.map((p, i) => (
           <Reveal key={p.title} delay={0.08 + i * 0.06}>
             <Card className="flex h-full min-h-[300px] flex-col p-9">
-              {p.stat ? (
-                <p className="eyebrow-yellow">{p.stat}</p>
+              {/* Icon first where the point has one. The yellow dash it replaces
+                  was a placeholder for exactly this. */}
+              {p.icon ? (
+                // 56, not the 44 default: at 44 the glyph read as a toolbar
+                // icon next to a 28px title on a 1920px canvas.
+                <Icon name={p.icon} size={56} />
               ) : (
                 <span className="block h-[3px] w-10 rounded-full bg-dozer-yellow" />
               )}
-              <h3 className="mt-5 text-[28px] font-medium leading-tight text-dozer-heading">
+              {p.stat && <p className="eyebrow-yellow mt-5">{p.stat}</p>}
+              <h3
+                className={`text-[28px] font-medium leading-tight text-dozer-heading ${
+                  p.stat ? 'mt-2' : 'mt-5'
+                }`}
+              >
                 {p.title}
               </h3>
               <p className="mt-4 text-[18px] leading-relaxed text-dozer-body">{p.body}</p>
@@ -188,9 +228,11 @@ export function TimelineSlide({
 }) {
   return (
     <SlideFrame eyebrow={eyebrow} title={title}>
-      <div className="relative pt-14">
-        {/* The spine. Sits behind the markers, at their vertical centre. */}
-        <div className="absolute left-0 right-0 top-[70px] h-px bg-dozer-muted/40" />
+      <div className="relative pt-6">
+        {/* The spine, at the vertical centre of the marker dots. The icons sit
+            above it and the copy below, so the row reads as a line of stations
+            rather than as six stacked cards. */}
+        <div className="absolute left-0 right-0 top-[86px] h-px bg-dozer-muted/40" />
 
         {/* Column count follows the data. It was pinned at 5, so adding the
             day-21 read-out silently wrapped the last phase onto a second row
@@ -202,10 +244,13 @@ export function TimelineSlide({
           {phases.map((p, i) => (
             <Reveal key={`${p.when}-${p.title}`} delay={0.06 + i * 0.07}>
               <div className="flex flex-col">
-                <div className="relative flex h-4 items-center">
+                <div className="flex h-[64px] items-end">
+                  {p.icon ? <Icon name={p.icon} size={52} /> : null}
+                </div>
+                <div className="relative mt-5 flex h-4 items-center">
                   <span className="h-3.5 w-3.5 rounded-full border-2 border-dozer-yellow bg-dozer-card" />
                 </div>
-                <p className="mt-6 font-mono text-[13px] uppercase tracking-eyebrow text-dozer-yellow">
+                <p className="mt-5 font-mono text-[13px] uppercase tracking-eyebrow text-dozer-yellow">
                   {p.when}
                 </p>
                 <h3 className="mt-2.5 text-[26px] font-medium leading-tight text-dozer-heading">
@@ -240,8 +285,8 @@ export function PilotSlide() {
     >
       <div className="grid grid-cols-[1.15fr_1fr] gap-8">
         <Reveal delay={0.05}>
-          <Card className="h-full p-10" accent>
-            <div className="grid grid-cols-2 gap-x-10 gap-y-8">
+          <Card className="h-full p-8" accent>
+            <div className="grid grid-cols-2 gap-x-10 gap-y-6">
               <Term label="Scope" value={PILOT.machines} />
               <Term label="Duration" value={PILOT.duration} />
               <Term label="Install" value={PILOT.install} />
@@ -252,7 +297,7 @@ export function PilotSlide() {
               />
             </div>
 
-            <div className="mt-10 border-t border-dozer-muted/40 pt-7">
+            <div className="mt-8 border-t border-dozer-muted/40 pt-6">
               <p className="eyebrow text-dozer-muted">No lock-in</p>
               <p className="mt-2.5 text-[21px] leading-snug text-dozer-heading">{PILOT.exit}</p>
             </div>
@@ -260,9 +305,9 @@ export function PilotSlide() {
         </Reveal>
 
         <Reveal delay={0.11}>
-          <Card className="h-full p-10">
+          <Card className="h-full p-8">
             <p className="eyebrow text-dozer-muted">What is included</p>
-            <ul className="mt-6 space-y-4">
+            <ul className="mt-5 space-y-3.5">
               {PILOT.includes.map((line) => (
                 <li key={line} className="flex gap-4">
                   <span className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-dozer-yellow" />
@@ -271,6 +316,35 @@ export function PilotSlide() {
               ))}
             </ul>
           </Card>
+        </Reveal>
+      </div>
+
+      {/*
+        Two real stills at the moment of the ask.
+
+        This slide had the most dead space in the deck, and it is the worst place
+        in the deck to have any: it is the slide the rep stops talking on. Filling
+        it with what actually lands on the machine — the operator's screen, and a
+        detection off that screen — beats filling it with another bullet, and
+        both are frames from the prospect's own kind of site rather than a
+        rendering of one.
+      */}
+      <div className="mt-7 grid grid-cols-[1.15fr_1fr] gap-8">
+        <Reveal delay={0.18}>
+          <ProductShot
+            src="/clips/in-cab-display.jpg"
+            alt="The in-cab operator display showing front, right and rear camera feeds with proximity detection"
+            caption="Day one — the operator's screen"
+            imageClassName="block h-[236px] w-full object-cover object-top"
+          />
+        </Reveal>
+        <Reveal delay={0.24}>
+          <ProductShot
+            src="/product/rear-detection.jpg"
+            alt="Rear camera feed with a truck and a car boxed, classified and carrying distances"
+            caption="Every object named, and measured"
+            imageClassName="block h-[236px] w-full object-cover"
+          />
         </Reveal>
       </div>
     </SlideFrame>
@@ -304,16 +378,19 @@ export function CloseSlide() {
   const next: Point[] = [
     {
       stat: 'Today',
+      icon: 'machine',
       title: 'Pick the machine',
       body: 'One, chosen by you. The one you worry about, not the one that demos well.',
     },
     {
       stat: 'This week',
+      icon: 'owner',
       title: 'Name the owner',
       body: 'One person who will read the weekly report. Without a name, a pilot ends in a shrug.',
     },
     {
       stat: 'Next week',
+      icon: 'calendar',
       title: 'An hour with your equipment manager',
       body: 'The machine, your cost codes, and a date for the install. That is the whole scoping call.',
     },
