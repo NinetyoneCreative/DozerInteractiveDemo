@@ -826,7 +826,13 @@ const SPEC: ChapterSpec[] = [
         seconds: 120,
         slide: { kind: 'pilot' },
         notes: [
-          `⚠ CHECK THE TERMS ON THIS SLIDE BEFORE THE CALL. They live in lib/demoData.ts under PILOT and the fee currently reads "${PILOT.price}".`,
+          ...(/tbc|confirm/i.test(PILOT.price)
+            ? [
+                `⚠ THE FEE ON THIS SLIDE IS NOT SET. It reads "${PILOT.price}" — fix PILOT.price in lib/demoData.ts before you present.`,
+              ]
+            : [
+                `${PILOT.machines}, ${PILOT.duration}, ${PILOT.price}. Say the number plainly and do not soften it — it is small on purpose, and hedging makes it sound like an opening position.`,
+              ]),
           `${PILOT.machines}, ${PILOT.duration}, one fee. Say all three in one breath — the offer is small on purpose, and stringing it out makes it sound bigger than it is.`,
           'Pick the machine with them, on the call if you can. The one that worries them, not the one that demos well. A single machine makes that an easy question to answer rather than a scheduling exercise.',
           'The exit clause is the part to say slowly. Removing the risk of being stuck is usually worth more to this audience than anything you could discount.',

@@ -309,6 +309,7 @@ export function PilotSlide() {
                 label="Commercials"
                 value={PILOT.price}
                 warn={priceUnconfirmed}
+                note={priceUnconfirmed ? undefined : PILOT.priceNote}
               />
             </div>
 
@@ -366,7 +367,18 @@ export function PilotSlide() {
   );
 }
 
-function Term({ label, value, warn = false }: { label: string; value: string; warn?: boolean }) {
+function Term({
+  label,
+  value,
+  warn = false,
+  note,
+}: {
+  label: string;
+  value: string;
+  warn?: boolean;
+  /** Supporting line under the value. Ignored while `warn` is set. */
+  note?: string;
+}) {
   return (
     <div>
       <p className="eyebrow text-dozer-muted">{label}</p>
@@ -378,10 +390,16 @@ function Term({ label, value, warn = false }: { label: string; value: string; wa
       >
         {value}
       </p>
-      {warn && (
+      {warn ? (
         <p className="mt-1.5 font-mono text-[11px] uppercase tracking-eyebrow text-dozer-muted">
           Placeholder — set PILOT.price
         </p>
+      ) : (
+        note && (
+          <p className="mt-1.5 font-mono text-[11px] uppercase tracking-eyebrow text-dozer-muted">
+            {note}
+          </p>
+        )
       )}
     </div>
   );

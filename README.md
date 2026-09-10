@@ -58,16 +58,15 @@ prospect asked about instead of arrowing through everything in front of it.
 
 Two things in `lib/demoData.ts` need a human before this goes in front of anyone.
 
-**1. The pilot fee has no amount yet.** The offer is one machine, 45 days, one small
-fee — but the figure itself has not been set, so `PILOT.price` reads
-`"One flat fee — confirm the amount"`. The close slide renders any value still
-containing "confirm" or "TBC" in yellow with a warning beneath it, rather than setting
-an unconfirmed number quietly in the same type as everything else. Put the amount in
-`PILOT` and the warning styling disappears on its own.
+**1. The pilot terms live in one place.** One machine, 45 days, $2,500 — all in
+`PILOT` in `lib/demoData.ts`. Everything the close chapter says about the offer is
+read from there: the slide, its heading, the step title and the speaker notes. That
+is the only place to change it.
 
-Everything the close chapter says about the offer — the slide, its heading, the step
-title and the speaker notes — is read from `PILOT`, so that is the only place to change
-it.
+If the price is ever reset to something containing "confirm" or "TBC", the close
+slide renders it in yellow with a placeholder label and the presenter view swaps
+its note for a warning — so an unset price cannot quietly reach a prospect looking
+like a real one.
 
 **2. Every figure in the demo dataset is invented.** It is not a Dozer.ai customer
 result and must never be presented as one. The dashboard and the safety-event slides

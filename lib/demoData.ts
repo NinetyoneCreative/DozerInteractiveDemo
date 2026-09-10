@@ -403,18 +403,17 @@ export const PILOT = {
   duration: '45 days',
   install: 'Installed on your yard, in one visit',
   /**
-   * ⚠ SET THE AMOUNT BEFORE YOU PRESENT.
+   * A single fee: one line, no per-seat, no per-suite, no setup charge on top.
+   * That is the whole point of it — a number small enough that nobody has to
+   * build a business case to say yes.
    *
-   * The offer is a single small fee — one line, no per-seat, no per-suite, no
-   * setup charge on top — which is the whole point of it: a number small enough
-   * that nobody has to build a business case to say yes. The FIGURE has not
-   * been given to me, so it is not written here. Put it in and the warning
-   * styling on the close slide disappears on its own.
-   *
-   * The slide flags any value still containing "confirm" or "TBC" in yellow,
-   * so an unset price cannot quietly reach a prospect looking like a real one.
+   * The close slide still flags any value containing "confirm" or "TBC" in
+   * yellow with a placeholder label, so if this is ever reset to an unknown it
+   * cannot quietly reach a prospect looking like a real price.
    */
-  price: 'One flat fee — confirm the amount',
+  price: '$2,500',
+  /** Sits under the price. Keeps "one fee" doing work now the figure is real. */
+  priceNote: 'One flat fee for the 45 days',
   includes: [
     'Full camera and depth-sensor package on the pilot machine',
     'In-cab alerting live from day one',
