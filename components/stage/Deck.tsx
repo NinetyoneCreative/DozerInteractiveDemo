@@ -26,6 +26,52 @@ import {
 } from './Overlays';
 import { Stage, useFullscreen } from './Stage';
 
+/**
+ * Pull the 3D module's code and its two GLBs into cache while the rep is still
+ * on the opening chapter.
+ *
+ * The module preloads its own machines, but only once it has already mounted —
+ * which is too late to help the first time it is opened. Cold, the coverage
+ * chapter took ~3.6s to go from a keypress to a scene with a number on it, and
+ * that gap used to be hidden behind a text slide before it. With that slide gone
+ * the gap would be in front of the prospect, so it is closed properly instead.
+ *
+ * On idle, and once: this must never compete with rendering the slide the rep is
+ * actually looking at.
+ */
+function useWarmCoverageModule() {
+  const done = useRef(false);
+
+  useEffect(() => {
+    if (done.current) return;
+    done.current = true;
+
+    const warm = () => {
+      // The chunk first — it carries three.js, which is the larger half of the
+      // wait — then the machines it will ask for.
+      void import('@/components/camera-coverage/Machine')
+        .then(({ preloadMachines }) => preloadMachines())
+        .catch(() => {
+          // A deck that cannot prefetch still works; it is just slower on the
+          // first open. Nothing to report to the rep mid-presentation.
+        });
+    };
+
+    const ric = (window as typeof window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+    }).requestIdleCallback;
+
+    if (ric) {
+      ric(warm, { timeout: 4000 });
+    } else {
+      // Safari has no requestIdleCallback. A timeout is long enough to be after
+      // the first paint and short enough to be done before anyone reaches
+      // chapter 3.
+      window.setTimeout(warm, 2500);
+    }
+  }, []);
+}
+
 export function Deck() {
   const index = useDeckStore((s) => s.index);
   const overview = useDeckStore((s) => s.overview);
@@ -41,6 +87,8 @@ export function Deck() {
   const step = STEPS[index];
   const interactive = isInteractive(step);
   const slideRef = useRef<HTMLDivElement>(null);
+
+  useWarmCoverageModule();
 
   /* Interact mode has to actually move focus, or the 3D module's own key
      handlers never fire — it listens on its canvas, not on the window. Focusing

@@ -240,21 +240,6 @@ const SPEC: ChapterSpec[] = [
     summary: 'The interactive 3D coverage module. Hand it over.',
     steps: [
       {
-        eyebrow: 'The real question',
-        title: 'Ask every vendor this',
-        seconds: 60,
-        slide: {
-          kind: 'statement',
-          lead: '“Show me the ground your cameras do not cover.”',
-          sub: 'Any vendor can tell you they have cameras. The useful question is where the gaps are, how wide they are, and what happens to them when the machine moves.',
-        },
-        notes: [
-          'Tell them to ask this of everyone they are evaluating, including you. It costs you nothing and it reframes the whole comparison in your favour, because most of the market cannot answer it.',
-          'Then say: here is ours, and you can drive it yourself.',
-          'Advance and press I straight away. Do not describe the module while it sits there frozen.',
-        ],
-      },
-      {
         eyebrow: 'Coverage',
         title: 'The full package on an excavator',
         seconds: 180,
@@ -267,6 +252,7 @@ const SPEC: ChapterSpec[] = [
           callout: 'Blue is covered ground. Drag to orbit. Swing the house and watch the gaps move with it.',
         },
         notes: [
+          'Open with the question, over the live scene rather than over a slide: "ask every vendor you are evaluating to show you the ground their cameras do NOT cover." It costs you nothing and most of the market cannot answer it. Then: here is ours, and you can drive it yourself.',
           'Press I to hand over control, then genuinely hand it over — offer them the mouse if you are in the room, or talk them through it if you are not.',
           'Three things to show, in this order. One: the blue is real, solved from the actual mount positions, not painted on. Two: swing the house and the seams swing with it, because the cameras are bolted to the house. Three: drag a worker into a seam and the panel says, in words, that nobody can see them.',
           'The seams are wider than the nominal spec — around 15 to 22 degrees at eight metres rather than a clean 10 — because the cameras are mounted metres apart rather than stacked at the machine centre. Say that before they find it. Volunteering your own worst number is the most credible thing you will do on this call.',
