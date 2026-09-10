@@ -7,7 +7,7 @@
 
 import { CHAPTERS, TOTAL_SECONDS, formatClock } from '@/lib/deck';
 import type { Phase, Point } from '@/lib/deck';
-import { JOBSITE, PILOT } from '@/lib/demoData';
+import { PILOT } from '@/lib/demoData';
 import { Card, GUTTER, Logo, Reveal, SlideFrame } from './Frame';
 
 /* ── Cover ───────────────────────────────────────────────────────────────── */
@@ -42,11 +42,6 @@ export function CoverSlide() {
 
       <Reveal delay={0.18}>
         <div className="mt-16 flex items-center gap-8 border-t border-dozer-muted/40 pt-7">
-          <div>
-            <p className="eyebrow text-dozer-muted">Prepared for</p>
-            <p className="mt-1.5 text-[22px] font-medium text-dozer-heading">{JOBSITE.name}</p>
-          </div>
-          <span className="h-10 w-px bg-dozer-muted/40" />
           <div>
             <p className="eyebrow text-dozer-muted">Running time</p>
             <p className="mt-1.5 font-mono text-[22px] text-dozer-heading">
