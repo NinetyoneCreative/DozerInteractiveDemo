@@ -185,17 +185,19 @@ function StageArt({ stage, lit }: { stage: Stage; lit: boolean }) {
 
   if (stage === 'machine') {
     /*
-     * Redrawn. The previous version was a box on tracks with a thin line for a
-     * boom and camera dots scattered over it, joined by dashes that read as
-     * noise rather than as sight lines — at plate size you could not tell what
-     * it was a picture of.
+     * The camera unit itself, on its mount.
      *
-     * Three things fixed. The machine is drawn as a recognisable excavator
-     * (tracks, house, cab, boom, stick, bucket) so it reads as heavy equipment
-     * at a glance. The cameras are the only accented element, because they are
-     * what the plate is about. And their coverage splays OUTWARD onto a ground
-     * line rather than arcing over the roof — that is where it actually falls,
-     * and it stops the cones cutting across the machine body.
+     * Drawn from a photograph of the real hardware: a wide bar with rounded
+     * ends, two lenses and a vent grille at one end, on a ball-and-socket arm
+     * whose clamp grips a handrail, with a coiled cable running back to the
+     * machine. The details are what make it read as a specific piece of kit
+     * rather than as a generic camera glyph — the coil especially.
+     *
+     * This replaces a drawing of the whole excavator. The plate's line is
+     * "cameras and depth sensors, mounted to the iron", and a machine with three
+     * small pods on it puts the emphasis on the machine; the hardware is the
+     * subject, so the hardware is what is drawn, and it is the only accented
+     * thing here.
      */
     return (
       <svg width="200" height="96" viewBox="0 0 200 96" fill="none" aria-hidden>
@@ -206,29 +208,34 @@ function StageArt({ stage, lit }: { stage: Stage; lit: boolean }) {
           strokeLinejoin="round"
           fill="none"
         >
-          {/* Ground the cameras cover */}
-          <path d="M31 39 L3 85 H45 Z" fill={accent} fillOpacity="0.15" stroke={accent} strokeDasharray="3 3.5" />
-          <path d="M104 39 L99 85 H147 Z" fill={accent} fillOpacity="0.15" stroke={accent} strokeDasharray="3 3.5" />
-          <path d="M2 85 H168" stroke="#a7aab1" strokeWidth="1.2" />
+          {/* The handrail it clamps to */}
+          <rect x="8" y="74" width="184" height="13" rx="6.5" />
 
-          {/* Tracks, house, cab */}
-          <rect x="26" y="59" width="88" height="16" rx="8" />
-          <circle cx="40" cy="67" r="2.2" fill={line} stroke="none" />
-          <circle cx="100" cy="67" r="2.2" fill={line} stroke="none" />
-          <path d="M32 59 V41 H104 V59" />
-          <path d="M44 41 V25 H70 V41" />
-          <path d="M48 29 H66 V38 H48 Z" stroke="#a7aab1" />
+          {/* Coiled cable back to the machine */}
+          <path
+            d="M44 38 C 30 40, 30 47, 40 47 C 30 47, 30 54, 40 54 C 30 54, 30 61, 40 61 C 32 63, 26 68, 24 74"
+            stroke="#a7aab1"
+            strokeWidth="1.5"
+          />
 
-          {/* Boom, stick, bucket */}
-          <path d="M104 46 L134 19" />
-          <path d="M134 19 L151 40" />
-          <path d="M151 40 L161 44 L157 54 L147 50 Z" />
+          {/* Mount: stem, ball, socket arm, clamp */}
+          <path d="M100 40 V45" strokeWidth="3" />
+          <circle cx="100" cy="51" r="6.5" strokeWidth="1.8" />
+          <path d="M100 57.5 V64" strokeWidth="3" />
+          <rect x="83" y="64" width="34" height="23" rx="6" strokeWidth="1.8" />
+          <path d="M87 75.5 H113" stroke="#a7aab1" />
+          <circle cx="100" cy="70" r="1.6" fill={line} stroke="none" />
 
-          {/* The cameras */}
-          <g fill={accent} stroke={accent}>
-            <rect x="27" y="35" width="7.5" height="6" rx="1.8" />
-            <rect x="53" y="20" width="7.5" height="6" rx="1.8" />
-            <rect x="101" y="35" width="7.5" height="6" rx="1.8" />
+          {/* The unit */}
+          <rect x="38" y="14" width="124" height="26" rx="13" stroke={accent} strokeWidth="2.4" />
+          <circle cx="62" cy="27" r="4.8" stroke={accent} strokeWidth="2.4" />
+          <circle cx="86" cy="27" r="4.8" stroke={accent} strokeWidth="2.4" />
+          <g fill={accent} stroke="none">
+            {[0, 1, 2].map((r) =>
+              [0, 1, 2, 3].map((c) => (
+                <circle key={`${r}-${c}`} cx={120 + c * 8} cy={21 + r * 6} r="1.5" />
+              )),
+            )}
           </g>
         </g>
       </svg>
