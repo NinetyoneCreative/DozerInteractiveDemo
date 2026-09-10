@@ -150,3 +150,31 @@ export function SampleDataChip({ className = '' }: { className?: string }) {
     </span>
   );
 }
+
+/**
+ * The Dozer wordmark.
+ *
+ * Served from /public/logo.svg as a plain <img> rather than inlined, so
+ * replacing the mark is a file drop with no code change and no rebuild of any
+ * component that uses it. `next/image` would buy nothing here — the export is
+ * static and unoptimised, and the intrinsic size is known.
+ *
+ * The aspect ratio is baked in so the height never has to be passed at a call
+ * site and the box cannot shift while the SVG loads. If you swap in a mark with
+ * different proportions, change LOGO_RATIO to match and every use follows.
+ */
+export const LOGO_RATIO = 3.841; // width / height of public/logo.svg
+
+export function Logo({ width, className = '' }: { width: number; className?: string }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/logo.svg"
+      alt="Dozer"
+      width={width}
+      height={Math.round((width / LOGO_RATIO) * 100) / 100}
+      className={className}
+      style={{ width, height: width / LOGO_RATIO }}
+    />
+  );
+}

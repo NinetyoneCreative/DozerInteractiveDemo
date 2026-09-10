@@ -84,6 +84,31 @@ The demo jobsite is **Smith Denison**, set in `JOBSITE` at the top of the same f
 
 ---
 
+## The logo
+
+The wordmark lives at `public/logo.svg` and is used on the cover and the closing
+slide. Swapping it is a file drop — replace that one file and both uses follow, with
+no code change:
+
+```
+public/logo.svg     the wordmark
+app/icon.svg        the browser-tab favicon (a `d` monogram, square)
+```
+
+If the replacement has different proportions, update `LOGO_RATIO` in
+`components/slides/Frame.tsx` to its width ÷ height. That is the only number about
+the logo anywhere in the code — call sites pass a width and the height follows, so
+nothing can end up stretched or shift while the SVG loads.
+
+The mark currently in the repo is **reconstructed, not the original file.** The logo
+was supplied as an image in conversation and never reached the repo as an asset, so it
+was rebuilt as real vector outlines — Montserrat ExtraBold, tightly tracked, in the
+brand amber `#fdac13` — rather than traced by hand or set as live text. It is a close
+match and it is resolution-independent, but **if you have the real vector file, use
+it**: drop it at `public/logo.svg` and you are done.
+
+---
+
 ## Gotham
 
 Gotham is licensed and cannot ship in this repo, so the deck currently renders in

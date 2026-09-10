@@ -8,7 +8,7 @@
 import { CHAPTERS, TOTAL_SECONDS, formatClock } from '@/lib/deck';
 import type { Phase, Point } from '@/lib/deck';
 import { JOBSITE, PILOT } from '@/lib/demoData';
-import { Card, GUTTER, Reveal, SlideFrame } from './Frame';
+import { Card, GUTTER, Logo, Reveal, SlideFrame } from './Frame';
 
 /* ── Cover ───────────────────────────────────────────────────────────────── */
 
@@ -16,12 +16,11 @@ export function CoverSlide() {
   return (
     <div className={`flex h-full flex-col justify-center ${GUTTER} pb-20`}>
       <Reveal>
-        <div className="flex items-center gap-4">
-          <DozerMark />
-          <p className="font-mono text-[15px] uppercase tracking-eyebrow text-dozer-heading">
-            Dozer.ai
-          </p>
-        </div>
+        {/* The wordmark carries the brand on its own. The mono "DOZER.AI" that
+            used to sit beside the placeholder mark is gone — setting the name
+            twice, once as a logo and once as a caption, read as a stand-in
+            waiting to be replaced, which is exactly what it was. */}
+        <Logo width={228} />
       </Reveal>
 
       <Reveal delay={0.06}>
@@ -62,17 +61,6 @@ export function CoverSlide() {
         </div>
       </Reveal>
     </div>
-  );
-}
-
-/** A small geometric mark. Not the real Dozer logo — swap it when you have the asset. */
-function DozerMark() {
-  return (
-    <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden>
-      <rect x="1" y="1" width="32" height="32" rx="8" stroke="#a7aab1" />
-      <path d="M9 22.5 L17 9 L25 22.5 Z" fill="#fdac13" />
-      <rect x="9" y="24" width="16" height="2" rx="1" fill="#4d5260" />
-    </svg>
   );
 }
 
@@ -332,7 +320,7 @@ export function CloseSlide() {
     {
       stat: 'Next week',
       title: 'An hour with your equipment manager',
-      body: 'Machines, cost codes, and a date for the install. That is the whole scoping call.',
+      body: 'The machine, your cost codes, and a date for the install. That is the whole scoping call.',
     },
   ];
 
@@ -353,10 +341,13 @@ export function CloseSlide() {
       </div>
 
       <Reveal delay={0.28}>
-        <p className="mt-10 border-l-2 border-dozer-yellow pl-7 text-[24px] leading-relaxed text-dozer-body">
-          Everything on the screen today came off one install. Cameras that keep people
-          away from the machine, and the same cameras telling you what the machine did.
-        </p>
+        <div className="mt-10 flex items-end justify-between gap-12">
+          <p className="max-w-[1240px] border-l-2 border-dozer-yellow pl-7 text-[24px] leading-relaxed text-dozer-body">
+            Everything on the screen today came off one install. Cameras that keep people
+            away from the machine, and the same cameras telling you what the machine did.
+          </p>
+          <Logo width={150} className="mb-1 shrink-0" />
+        </div>
       </Reveal>
     </SlideFrame>
   );
