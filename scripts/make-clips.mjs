@@ -98,7 +98,13 @@ for (const clip of clips) {
     '-vf', filters,
     '-an',
     '-c:v', 'libvpx-vp9',
-    '-crf', '34',
+    // The browser is offered WebM first, so it has to actually be smaller than
+    // the MP4 or the ordering is doing harm. At crf 34 it came out LARGER than
+    // x264 at crf 25 on this footage; 38 lands comfortably under it, and on a
+    // screen recording the difference is invisible — the distance readouts and
+    // the label chips are pixel-identical at 42, which was checked rather than
+    // assumed.
+    '-crf', '38',
     '-b:v', '0',
     // Two passes would be smaller, but these clips are seconds long and this
     // is already well under the size where it would matter.

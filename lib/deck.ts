@@ -26,6 +26,7 @@ export type Slide =
   | { kind: 'system'; highlight?: 'machine' | 'cab' | 'cloud' | null }
   | { kind: 'coverage'; machine: 'excavator' | 'wheelLoader'; environment: 'studio' | 'street' | 'dirt' | 'urban'; callout: string }
   | { kind: 'dashboard'; focus: DashboardFocus; callout: string }
+  | { kind: 'incab'; focus: Sector; callout: string }
   | { kind: 'events' }
   | { kind: 'report' }
   | { kind: 'timeline'; phases: Phase[] }
@@ -50,6 +51,14 @@ export interface Phase {
  * whole screen with nothing dimmed.
  */
 export type DashboardFocus = null | 'filters' | 'kpis' | 'utilization' | 'costcodes' | 'map' | 'machines';
+
+/**
+ * Panels of the in-cab display the deck can highlight. Defined here rather than
+ * in the component for the same reason as DashboardFocus: this file imports
+ * nothing from components/, so the presenter window can load the script without
+ * dragging a video player and three.js across to print a heading.
+ */
+export type Sector = null | 'plan' | 'front' | 'right' | 'rear';
 
 export interface Step {
   /** 1-based position within the chapter. The hash is #/<slug>/<n>. */
@@ -359,6 +368,110 @@ const SPEC: ChapterSpec[] = [
 
   /* ══ 5 ══════════════════════════════════════════════════════════════════ */
   {
+    slug: 'in-cab',
+    title: 'In the cab',
+    summary: 'The operator display, running. Real footage from site.',
+    steps: [
+      {
+        eyebrow: 'The display',
+        title: 'What the operator actually sees',
+        seconds: 90,
+        slide: {
+          kind: 'incab',
+          focus: null,
+          callout: 'Real footage from a Smith Denison machine. Three feeds, a plan view, and a distance on every object.',
+        },
+        notes: [
+          'Let it run for a few seconds before you say anything. It is the first time on this call they are seeing the actual product rather than a diagram, and they need a moment to take the screen in.',
+          'Then orient them: plan view of the machine down the left, camera feeds on the right — front, right side, and rear across the bottom.',
+          'Say that this is real footage off a real machine, not a mock-up. It is the single most credible thing on the screen, and if you do not say it some of the room will assume it is animated.',
+          'One honest caveat if anyone asks: the deck plays a 16-second loop cut from a longer recording. Nothing in it is staged or sped up.',
+        ],
+      },
+      {
+        eyebrow: 'Plan view',
+        title: 'The machine, and what is near it',
+        seconds: 80,
+        slide: {
+          kind: 'incab',
+          focus: 'plan',
+          callout: 'The arcs are proximity zones. They light by side, so the operator knows WHERE before they know what.',
+        },
+        notes: [
+          'The arcs around the machine are the part to dwell on. They are not decoration — each one is a side, and it lights when something enters that zone.',
+          'Watch the rear arc go amber while the front stays white. That is the whole idea in one image: the operator learns which side to worry about before they have read a single number.',
+          'This matters because an operator mid-swing has about a second of attention to spare. Colour on the correct side of a machine diagram is something you take in without reading.',
+          'Point out that the plan view is the machine they are actually in — tracks, cab, boom — not a generic icon.',
+        ],
+      },
+      {
+        eyebrow: 'Front',
+        title: 'Clear ahead',
+        seconds: 60,
+        slide: {
+          kind: 'incab',
+          focus: 'front',
+          callout: 'Nothing detected forward. No boxes, no border, no alert — the screen stays quiet when there is nothing to say.',
+        },
+        notes: [
+          'Use this one to make the point about quiet. The front feed sits there with no boxes and no border for most of the clip, because there is nothing in front of the machine.',
+          'A system that decorates every frame with boxes trains the operator to ignore it. This one says nothing until it has something to say.',
+          'If they asked the alarm-fatigue question back in chapter 4, this is where you close that loop — point at the empty feed and say: that is what restraint looks like.',
+        ],
+      },
+      {
+        eyebrow: 'Right',
+        title: 'Red is a person-sized problem',
+        seconds: 100,
+        slide: {
+          kind: 'incab',
+          focus: 'right',
+          callout: 'Border goes red as the car closes to 2.6m. The severity is on the panel edge, readable without focusing on it.',
+        },
+        notes: [
+          'Wait for the border to go red — it does, twice in the loop. Do not talk over it.',
+          'The escalation is three states, and they are worth naming out loud: nothing, amber, red. It is on the panel edge rather than in the middle of the picture, so the operator picks it up peripherally without taking their eyes off the work.',
+          'The distance readout next to each box is the honest part. It is not "something is close" — it is 2.6 metres, at 132 degrees. That number comes from the depth sensor, which is what you were describing back in chapter 2.',
+          'Good question to ask here: "Where would you want that threshold set on your sites?" It gets them designing the deployment in their own head.',
+        ],
+      },
+      {
+        eyebrow: 'Rear',
+        title: 'It names what it sees',
+        seconds: 100,
+        slide: {
+          kind: 'incab',
+          focus: 'rear',
+          callout: 'TRUCK. CAR. REAR BODY. Each one boxed, classified, and carrying its own distance.',
+        },
+        notes: [
+          'The rear feed is the busiest and the most convincing. Two vehicles, both boxed, both labelled, both carrying a distance — and the machine\u2019s own rear body labelled as well, so the operator can see what the system is measuring from.',
+          'Classification matters more than it sounds. "Something at 3 metres" and "a truck at 3 metres" are different instructions to an operator.',
+          'This is also the honest place to talk about what it does NOT do. It is not steering the machine and it is not stopping it. It is telling the person who is.',
+          'The sign on the wall behind says Smith Denison — this is their yard. Worth a beat if the room has not clocked it.',
+        ],
+      },
+      {
+        eyebrow: 'The ladder',
+        title: 'Quiet, amber, red',
+        seconds: 90,
+        slide: {
+          kind: 'incab',
+          focus: null,
+          callout: 'One pass, start to finish: nothing, then amber as they close, then red. Then back down as they clear.',
+        },
+        notes: [
+          'Back to the whole screen and let one full pass play. This is the summary step — you are showing the ladder rather than any single panel.',
+          'Narrate it once, lightly: quiet, amber as they close, red at the worst of it, then back down as they clear. Then stop and let it run.',
+          'The de-escalation is the half people forget to look at. A system that goes red and stays red is one the operator switches off by Thursday.',
+          'Close the chapter here and go to productivity. The line back to chapter 2 is: this is the alert path, and it never left the machine.',
+        ],
+      },
+    ],
+  },
+
+  /* ══ 6 ══════════════════════════════════════════════════════════════════ */
+  {
     slug: 'productivity',
     title: 'Productivity & Analytics',
     summary: 'The same hardware, doing a second job.',
@@ -423,7 +536,7 @@ const SPEC: ChapterSpec[] = [
     ],
   },
 
-  /* ══ 6 ══════════════════════════════════════════════════════════════════ */
+  /* ══ 7 ══════════════════════════════════════════════════════════════════ */
   {
     slug: 'dashboard',
     title: 'The dashboard',
@@ -538,7 +651,7 @@ const SPEC: ChapterSpec[] = [
     ],
   },
 
-  /* ══ 7 ══════════════════════════════════════════════════════════════════ */
+  /* ══ 8 ══════════════════════════════════════════════════════════════════ */
   {
     slug: 'rollout',
     title: 'What it takes to run it',
@@ -648,7 +761,7 @@ const SPEC: ChapterSpec[] = [
     ],
   },
 
-  /* ══ 8 ══════════════════════════════════════════════════════════════════ */
+  /* ══ 9 ══════════════════════════════════════════════════════════════════ */
   {
     slug: 'pilot',
     title: 'The pilot',

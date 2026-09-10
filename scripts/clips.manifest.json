@@ -2,23 +2,27 @@
   "_comment": [
     "Cut list for scripts/make-clips.mjs.",
     "",
-    "'source' is the raw screen recording, relative to the repo root. It is",
-    "gitignored \u2014 it is the large master, and only the small cut clips belong",
-    "in the repo.",
+    "ONE clip of the whole in-cab display, not four of its panels.",
     "",
-    "'width' is the output width in pixels. The phone on the stage is about",
-    "380px wide at 1920x1080, so 800 is roughly 2x for a sharp result without",
-    "shipping the full capture resolution.",
+    "Four separate <video> elements looping independently drift apart within",
+    "seconds, and the moment they do the display contradicts itself: the rear",
+    "feed shows a truck at 2.9m while the plan view beside it says all clear.",
+    "On a proximity-detection demo that is the one inconsistency you cannot",
+    "have. One decode, one timeline, always self-consistent \u2014 and the chapter",
+    "walks the panels by dimming the others over the top, which needs no",
+    "second asset.",
     "",
-    "Each clip: 'name' is the basename the <Clip> component references,",
-    "'start' and 'duration' are seconds, and 'crop' is an optional",
-    "'w:h:x:y' in SOURCE pixels \u2014 use it to trim a device recording down to",
-    "just the app's screen area.",
-    "",
-    "The clips array is empty until the recording is in hand and the sections",
-    "have been timed off it."
+    "The window is the full escalation arc: objects distant and the arcs white,",
+    "closing to amber, into red alert, then receding. It does not loop",
+    "seamlessly and is not meant to \u2014 the rep talks over one pass."
   ],
-  "source": "assets/new_dashboard_recording.mp4",
-  "width": 800,
-  "clips": []
+  "source": "incoming/new_dashboard_recording.mp4",
+  "width": 1200,
+  "clips": [
+    {
+      "name": "in-cab-display",
+      "start": 1.0,
+      "duration": 16.0
+    }
+  ]
 }

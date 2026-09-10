@@ -25,6 +25,7 @@ import {
   TimelineSlide,
 } from './Basic';
 import { EventsSlide, ReportSlide } from './Data';
+import { InCabSlide } from './InCab';
 import { CoveragePreview, CoverageSlide, DashboardSlide } from './Interactive';
 import { SystemDiagramSlide } from './SystemDiagram';
 
@@ -89,6 +90,20 @@ export function renderStep(
         />
       );
 
+    case 'incab':
+      return (
+        <InCabSlide
+          eyebrow={step.eyebrow}
+          title={step.title}
+          focus={s.focus}
+          callout={s.callout}
+          // Nothing autoplays in the presenter window's thumbnail: it is a
+          // second decode of a clip nobody is watching, on the same laptop that
+          // is screen-sharing the one they are.
+          active={!preview}
+        />
+      );
+
     case 'events':
       return <EventsSlide eyebrow={step.eyebrow} title={step.title} />;
 
@@ -122,6 +137,8 @@ export function slideKey(step: Step): string {
       return 'module:coverage';
     case 'dashboard':
       return 'module:dashboard';
+    case 'incab':
+      return 'module:incab';
     default:
       return step.id;
   }
