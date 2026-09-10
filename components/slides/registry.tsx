@@ -106,7 +106,14 @@ export function renderStep(
       );
 
     case 'events':
-      return <EventsSlide eyebrow={step.eyebrow} title={step.title} />;
+      return (
+        <EventsSlide
+          eyebrow={step.eyebrow}
+          title={step.title}
+          intro={s.intro}
+          image={s.image}
+        />
+      );
 
     case 'report':
       return <ReportSlide eyebrow={step.eyebrow} title={step.title} />;

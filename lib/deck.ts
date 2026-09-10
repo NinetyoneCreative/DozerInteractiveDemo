@@ -46,7 +46,12 @@ export type Slide =
     }
   | { kind: 'dashboard'; focus: DashboardFocus; callout: string }
   | { kind: 'incab'; focus: Sector; callout: string }
-  | { kind: 'events' }
+  | {
+      kind: 'events';
+      /** The claim the log is evidence for. */
+      intro: string;
+      image?: { src: string; alt: string; caption: string };
+    }
   | { kind: 'report' }
   | { kind: 'timeline'; phases: Phase[] }
   | { kind: 'pilot' }
@@ -338,34 +343,25 @@ const SPEC: ChapterSpec[] = [
         ],
       },
       {
-        eyebrow: 'Proximity',
+        eyebrow: 'Alerts',
         title: 'An alert only works if it is believed',
-        seconds: 90,
+        seconds: 150,
         slide: {
-          kind: 'statement',
-          lead: 'An operator who has been alerted for nothing three times will ignore the fourth one.',
-          sub: 'That is why coverage and depth matter more than alert volume. The number that counts is not how many alerts fired — it is how many of them the operator acted on.',
+          kind: 'events',
+          intro:
+            'An operator alerted for nothing three times will ignore the fourth one. Coverage and depth are what make a threshold worth trusting — and every alert that does fire keeps its clip, so the argument afterwards is already over.',
           image: {
             src: '/product/rear-detection.jpg',
             alt: 'Rear camera feed with a truck and a car boxed and classified, each carrying a distance and bearing',
-            caption: 'Rear feed — classified, with a distance on each',
+            caption: 'Classified, with a distance on each',
           },
         },
         notes: [
           'Bring the alarm-fatigue objection up yourself if they have not. It is the single most common reason these systems get ripped out, and pretending it is not real damages you.',
           'Tie it back to chapter 3: this is why we showed you the gaps. Coverage you can verify is what makes a threshold trustworthy.',
+          'Then drop to the log. Point at the row for EX-220 on Sep 4 — blind zone entry, 2.4 metres, swing stopped. The value is not the list, it is that there is a clip: you are not asking a superintendent to recall a Thursday afternoon.',
+          'Point at the LD-311 and DZ-402 rows and say: this is where a toolbox talk stops being generic. You are not telling the crew to be careful, you are showing them a machine and a time of day.',
           'Good question to ask here: "Has your team ever turned something like this off?" If the answer is yes, you have just found the whole objection you need to beat, and they told you what it is.',
-        ],
-      },
-      {
-        eyebrow: 'Event recording',
-        title: 'Every alert, with the video attached',
-        seconds: 100,
-        slide: { kind: 'events' },
-        notes: [
-          'Point at the row for EX-220 on Sep 4 — blind zone entry, 2.4 metres, swing stopped.',
-          'The value is not the list, it is that the argument is over. There is a clip. You are not asking a superintendent to recall a Thursday afternoon.',
-          'Then point at the two LD-311 and DZ-402 rows and say: this is where a toolbox talk stops being generic. You are not telling the crew to be careful, you are showing them a machine and a time of day.',
           'Sample data — say so if anyone asks. Never present these as another customer’s numbers.',
         ],
       },

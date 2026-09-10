@@ -10,13 +10,43 @@
  */
 
 import { AI_REPORT, JOBSITE, SAFETY_EVENTS } from '@/lib/demoData';
-import { Card, Reveal, SampleDataChip, SlideFrame } from './Frame';
+import { Card, ProductShot, Reveal, SampleDataChip, SlideFrame } from './Frame';
 
 /* ── Safety events ───────────────────────────────────────────────────────── */
 
-export function EventsSlide({ eyebrow, title }: { eyebrow: string; title: string }) {
+export function EventsSlide({
+  eyebrow,
+  title,
+  intro,
+  image,
+}: {
+  eyebrow: string;
+  title: string;
+  intro: string;
+  image?: { src: string; alt: string; caption: string };
+}) {
   return (
     <SlideFrame eyebrow={eyebrow} title={title}>
+      {/* The claim, and a real detection beside it. The log underneath is the
+          evidence for both — which is why these used to be two slides and are
+          now one: the argument and its proof were being made 100 seconds
+          apart. */}
+      <Reveal>
+        <div className={`mb-7 grid gap-12 ${image ? 'grid-cols-[1fr_400px]' : ''} items-center`}>
+          <p className="border-l-2 border-dozer-yellow pl-7 text-[21px] leading-relaxed text-dozer-body">
+            {intro}
+          </p>
+          {image && (
+            <ProductShot
+              src={image.src}
+              alt={image.alt}
+              caption={image.caption}
+              imageClassName="block h-[150px] w-full object-cover"
+            />
+          )}
+        </div>
+      </Reveal>
+
       <Reveal delay={0.05}>
         <Card className="overflow-hidden">
           <div className="flex items-center justify-between border-b border-dozer-muted/40 px-8 py-5">
@@ -74,12 +104,6 @@ export function EventsSlide({ eyebrow, title }: { eyebrow: string; title: string
         </Card>
       </Reveal>
 
-      <Reveal delay={0.16}>
-        <p className="mt-8 border-l-2 border-dozer-yellow pl-7 text-[20px] leading-relaxed text-dozer-body">
-          Every row has a clip attached. The point is not the list — it is that nobody has
-          to reconstruct a Thursday afternoon from memory.
-        </p>
-      </Reveal>
     </SlideFrame>
   );
 }
