@@ -77,6 +77,36 @@ export const GRID = {
 /** Height above the ground plane at which coverage is sampled. */
 export const SAMPLE_HEIGHT = 0.0;
 
+/**
+ * The operator's own line of sight from the cab, drawn in green.
+ *
+ * This is the honest baseline the camera package is measured against: green is
+ * what the operator already sees, blue is what the cameras add on top, warning is
+ * what neither reaches. Solved with the same occluders as the cameras, so the
+ * boom, the engine deck and the loader arms take chunks out of it exactly as they
+ * do in the cab.
+ *
+ * PLACEHOLDER — the arc below is a reasonable seated operator with normal head
+ * movement, not a measured ISO 5006 visibility study. It models the forward
+ * hemisphere and does NOT model an operator twisting round to look behind them,
+ * so rearward direct sight is understated. Treat the split as indicative until
+ * someone runs the real visibility test on the target machines.
+ */
+export const OPERATOR = {
+  /** Horizontal arc centred on the operator's facing, degrees. */
+  hFov: 180, // PLACEHOLDER — forward hemisphere, no over-the-shoulder look
+  /** Vertical arc. Wide, because the limit on seeing the ground is the bodywork. */
+  vFov: 100, // PLACEHOLDER
+  /** Downward tilt of the arc's centre. */
+  pitch: -25, // PLACEHOLDER
+  /**
+   * Cut off at the same distance as the cameras. Direct sight is not really
+   * range-limited, but matching them keeps the comparison about geometry rather
+   * than about how far each one reaches.
+   */
+  useCameraRange: true,
+};
+
 export const OCCLUSION = {
   /**
    * Collider boxes within this distance of a lens are treated as the camera's own
@@ -128,6 +158,12 @@ export const COLORS = {
   coverage: '#00e5ff',
   /** Coverage where several cameras overlap — lifts towards white, not a new hue. */
   coverageOverlap: '#a8f4ff',
+  /**
+   * Ground the operator can already see directly from the cab. Green reads as
+   * "fine as it is" against the blue's "this is what the cameras add", and holds
+   * up on a pale floor, asphalt and dirt alike.
+   */
+  operator: '#3ddc84',
   yellow: '#fdac13',
   page: '#f4f7f9',
   heading: '#4d5260',
@@ -293,6 +329,9 @@ export const MACHINES: Record<MachineKey, MachineConfig> = {
     // Seams at 0, 120, 240. The forward seam sits where the operator has direct
     // sight over the boom. All three cameras ride the house, so slewing sweeps the
     // entire coverage pattern and the seams travel with it.
+    // Cab sits centre-left on the house: roof runs 2.66 m at the back of the cab up
+    // to 3.37 m at the front, deck (cab floor) at 2.16 m.
+    operator: { mount: 'house', eye: [-0.2, 2.95, 0.85], yaw: 0 }, // PLACEHOLDER eye point
     pivots: {
       tracks: [0, 0, 0],
       house: [0, 0, 0],        // slew axis, at ground level
@@ -414,6 +453,9 @@ export const MACHINES: Record<MachineKey, MachineConfig> = {
     // the forward arc independently, so the two forward seams open and close
     // asymmetrically. At full articulation the inside-of-turn seam widens noticeably.
     // This is real and must be visible.
+    // Cab rides the rear frame, roof 3.46-3.57 m spanning z -2.6 to 0. The operator
+    // faces the bucket, so the loader arms cut straight across their sight line.
+    operator: { mount: 'chassis_rear', eye: [0, 3.05, -0.95], yaw: 0 }, // PLACEHOLDER eye point
     pivots: {
       chassis_rear: [0, 0, 0],
       chassis_front: [0, 0, 0],    // steering axis, at ground level

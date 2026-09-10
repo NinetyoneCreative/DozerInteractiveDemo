@@ -245,13 +245,42 @@ take the pixels off another one on purpose.
 
 ### The 3D module
 
-`components/camera-coverage/` is ported unmodified from
-`NinetyoneCreative/3dCameras`. Its own README in that directory is the reference for
-the coverage solver, the GLB contract, the placeholder values still awaiting hardware
-confirmation, and what the seams and blind zones actually mean. The deck consumes it
-through `initialMachine` / `initialEnvironment` props and keeps it mounted across all
-four steps of chapter 3, so switching steps does not re-download a 4MB GLB or reset the
-orbit camera.
+`components/camera-coverage/` is vendored from `NinetyoneCreative/3dCameras`, currently
+at `004962a` ("Add the operator's direct field of view as a third colour"). Its own
+README in that directory is the reference for the coverage solver, the GLB contract, the
+placeholder values still awaiting hardware confirmation, and what the seams and blind
+zones mean.
+
+**Two local changes**, both of which must be re-applied when the module is updated:
+
+| File | Change | Why |
+|---|---|---|
+| `store.ts` | `initialize()` also accepts `showAllCameras` | So a slide can open on the single-camera comparison without it counting as user input |
+| `CameraCoverage.tsx` | `initialShowAllCameras` prop, wired into the init effect | The prop the deck drives that with |
+
+In the store the preset is applied *after* the machine spread on purpose: switching
+machines runs `initial()`, which resets `showAllCameras` to true, so setting it earlier
+would be silently undone on any step that also changes machine.
+
+To update the module: copy `components/camera-coverage/` across, re-apply the two changes
+above, then re-check the figures the coverage chapter quotes — the slide copy names
+specific percentages and they come from the solver, not from the script.
+
+The deck consumes it through `initialMachine` / `initialEnvironment` /
+`initialShowAllCameras` and keeps it mounted across all three steps of chapter 3, so
+switching steps does not re-download a 4MB GLB or reset the orbit camera. The deck also
+warms the module on idle during chapter 1 — see `useWarmCoverageModule` in
+`components/stage/Deck.tsx`.
+
+### Coverage is three colours, not one
+
+Since `004962a` the module separates ground the operator can already see from the seat
+(green) from ground **only** the cameras reach (blue), with the operator winning any
+overlap so blue can never flatter the product. The coverage chapter's copy quotes the
+split directly — 37/46/17 on the excavator, 37/12/51 on one camera, 26/62/12 on the
+loader — so if the solver or the `OPERATOR` placeholders change, those numbers need
+re-measuring. Direct sight is a modelled seated arc, not a measured ISO 5006 study, and
+the speaker notes say so.
 
 ---
 

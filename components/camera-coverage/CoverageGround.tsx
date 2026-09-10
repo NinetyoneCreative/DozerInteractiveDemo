@@ -13,6 +13,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { COLORS, COVERAGE_STYLE, GRID } from './config';
 import { gridCells } from './coverage';
+import { CellState } from './types';
 import type { CoverageResult } from './types';
 
 /** "#rrggbb" -> [r, g, b] bytes, with no colour-space conversion. */
@@ -54,6 +55,7 @@ export function CoverageGround({ coverage, workingRadius, visible }: CoverageGro
 
   const blue = useMemo(() => srgbBytes(COLORS.coverage), []);
   const blueLift = useMemo(() => srgbBytes(COLORS.coverageOverlap), []);
+  const green = useMemo(() => srgbBytes(COLORS.operator), []);
   const warn = useMemo(() => srgbBytes(COLORS.warning), []);
   const white = useMemo<[number, number, number]>(() => [255, 255, 255], []);
 
@@ -63,7 +65,7 @@ export function CoverageGround({ coverage, workingRadius, visible }: CoverageGro
 
     const radiusSq = workingRadius * workingRadius;
     const half = GRID.extent / 2;
-    const { depth } = coverage;
+    const { depth, state } = coverage;
 
     for (let iz = 0; iz < cells; iz++) {
       const z = (iz + 0.5) * GRID.cell - half;
@@ -75,27 +77,31 @@ export function CoverageGround({ coverage, workingRadius, visible }: CoverageGro
         const src = iz * cells + ix;
         const dst = (row * cells + ix) * 4;
         const d = depth[src];
+        const st = state[src] as CellState;
         const inRadius = x * x + z * z <= radiusSq;
 
         // Every cell is painted for what it is, the ground under the machine
         // included. The footprint is excluded from the statistics, not the picture.
-        if (d === 0 && !inRadius) { data[dst + 3] = 0; continue; }
+        if (st === CellState.Blind && !inRadius) { data[dst + 3] = 0; continue; }
 
-        // Is this cell on a covered / uncovered boundary? That rim is what gives
-        // the zones a hard edge instead of a soft wash.
+        // Is this cell on a boundary between two states? That rim is what gives
+        // the zones a hard edge instead of a soft wash — and it now draws the
+        // green/blue line as sharply as the blue/warning one.
         let edge = false;
-        const covered = d > 0;
-        if (ix > 0 && (depth[src - 1] > 0) !== covered) edge = true;
-        else if (ix < cells - 1 && (depth[src + 1] > 0) !== covered) edge = true;
-        else if (iz > 0 && (depth[src - cells] > 0) !== covered) edge = true;
-        else if (iz < cells - 1 && (depth[src + cells] > 0) !== covered) edge = true;
+        if (ix > 0 && state[src - 1] !== st) edge = true;
+        else if (ix < cells - 1 && state[src + 1] !== st) edge = true;
+        else if (iz > 0 && state[src - cells] !== st) edge = true;
+        else if (iz < cells - 1 && state[src + cells] !== st) edge = true;
 
         let r: number;
         let g: number;
         let b: number;
         let a: number;
 
-        if (covered) {
+        if (st === CellState.Operator) {
+          r = green[0]; g = green[1]; b = green[2];
+          a = COVERAGE_STYLE.coveredAlpha;
+        } else if (st === CellState.Camera) {
           // Overlap lifts towards white rather than shifting hue, so two cameras
           // read as "more of the same" instead of a different state.
           const t = Math.min((d - 1) / 2, 1);
@@ -126,7 +132,7 @@ export function CoverageGround({ coverage, workingRadius, visible }: CoverageGro
       }
     }
     texture.needsUpdate = true;
-  }, [coverage, texture, cells, workingRadius, blue, blueLift, warn, white]);
+  }, [coverage, texture, cells, workingRadius, blue, blueLift, green, warn, white]);
 
   return (
     <group>

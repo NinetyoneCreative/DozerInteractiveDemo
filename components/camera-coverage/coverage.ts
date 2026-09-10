@@ -10,7 +10,8 @@
  * Occlusion uses the simplified box colliders from config, never the GLB mesh.
  */
 
-import { FOV, GRID, MACHINES, OCCLUSION, RANGE, SAMPLE_HEIGHT, SECTORS } from './config';
+import { FOV, GRID, MACHINES, OCCLUSION, OPERATOR, RANGE, SAMPLE_HEIGHT, SECTORS } from './config';
+import { CellState } from './types';
 import type {
   BlindZone,
   CameraState,
@@ -207,6 +208,29 @@ function buildOccluders(machine: MachineConfig, transforms: Record<string, Trans
   return out;
 }
 
+/**
+ * Per-node mask of the boxes within `clearance` of a viewpoint — the structure
+ * the eye or the lens is actually mounted on or sitting inside. Without it a
+ * camera is blinded by its own bracket and the operator by their own cab.
+ */
+function nearbyBoxMask(occluders: OccluderNode[], pos: Vec3, clearance: number): Uint8Array[] {
+  return occluders.map((node) => {
+    const mask = new Uint8Array(node.count);
+    const lp = applyRT(node.r, [pos[0] - node.t[0], pos[1] - node.t[1], pos[2] - node.t[2]]);
+    for (let i = 0; i < node.count; i++) {
+      const o = i * 3;
+      if (
+        lp[0] >= node.min[o] - clearance && lp[0] <= node.max[o] + clearance &&
+        lp[1] >= node.min[o + 1] - clearance && lp[1] <= node.max[o + 1] + clearance &&
+        lp[2] >= node.min[o + 2] - clearance && lp[2] <= node.max[o + 2] + clearance
+      ) {
+        mask[i] = 1;
+      }
+    }
+    return mask;
+  });
+}
+
 export function solveCameras(
   machine: MachineConfig,
   cameras: CameraState[],
@@ -218,22 +242,7 @@ export function solveCameras(
     // Boxes right at the lens are the camera's own mounting structure — see
     // OCCLUSION.mountClearance. They are excluded for this camera only; every
     // other box on the machine still blocks it.
-    const c = OCCLUSION.mountClearance;
-    const skip = occluders.map((node) => {
-      const mask = new Uint8Array(node.count);
-      const lp = applyRT(node.r, [pose.pos[0] - node.t[0], pose.pos[1] - node.t[1], pose.pos[2] - node.t[2]]);
-      for (let i = 0; i < node.count; i++) {
-        const o = i * 3;
-        if (
-          lp[0] >= node.min[o] - c && lp[0] <= node.max[o] + c &&
-          lp[1] >= node.min[o + 1] - c && lp[1] <= node.max[o + 1] + c &&
-          lp[2] >= node.min[o + 2] - c && lp[2] <= node.max[o + 2] + c
-        ) {
-          mask[i] = 1;
-        }
-      }
-      return mask;
-    });
+    const skip = nearbyBoxMask(occluders, pose.pos, OCCLUSION.mountClearance);
     return {
       id: cam.id,
       pos: pose.pos,
@@ -349,10 +358,98 @@ export function pointVisible(
   return true;
 }
 
+/* --------------------------------------------------------- operator solve -*/
+
+/**
+ * The operator's eyes, solved the same way a camera is.
+ *
+ * The arc is stored as an azimuth threshold and an elevation band rather than
+ * the cameras' tan-based rectangular frustum: OPERATOR.hFov is 180°, and
+ * tan(90°) has no finite value, so the rectangular test cannot express it. An
+ * angular test also matches what a head actually does — it sweeps, it does not
+ * look through a rectangular window.
+ */
+export interface SolvedOperator {
+  pos: Vec3;
+  /** Facing, projected onto the ground plane and normalised. */
+  fwdX: number;
+  fwdZ: number;
+  /** cos of half the horizontal arc — compared against the azimuth cosine. */
+  cosHalfH: number;
+  /** Elevation band in radians, measured from horizontal, negative = down. */
+  elevLo: number;
+  elevHi: number;
+  /** Squared sight range, or Infinity when the operator is not range-limited. */
+  rangeSq: number;
+  skip: Uint8Array[];
+}
+
+export function solveOperator(
+  machine: MachineConfig,
+  transforms: Record<string, Transform>,
+  occluders: OccluderNode[],
+): SolvedOperator {
+  const cfg = machine.operator;
+  const m = transforms[cfg.mount] ?? IDENTITY;
+  const pos = applyTransform(m, cfg.eye);
+
+  const y = cfg.yaw * DEG;
+  const f = applyR(m.r, [Math.sin(y), 0, Math.cos(y)]);
+  const len = Math.hypot(f[0], f[2]) || 1;
+
+  const half = (OPERATOR.vFov / 2) * DEG;
+  const centre = OPERATOR.pitch * DEG;
+  const range = OPERATOR.useCameraRange ? RANGE.effective : Infinity;
+
+  return {
+    pos,
+    fwdX: f[0] / len,
+    fwdZ: f[2] / len,
+    cosHalfH: Math.cos((OPERATOR.hFov / 2) * DEG),
+    elevLo: centre - half,
+    elevHi: centre + half,
+    rangeSq: range * range,
+    // The eye sits inside the cab, so without this the cab's own collider blocks
+    // every ray at t≈0 and the operator sees nothing at all.
+    skip: nearbyBoxMask(occluders, pos, OCCLUSION.mountClearance),
+  };
+}
+
+/** Can the operator see this ground point directly, without a screen? */
+export function operatorSees(
+  op: SolvedOperator,
+  occluders: OccluderNode[],
+  px: number, py: number, pz: number,
+): boolean {
+  const vx = px - op.pos[0];
+  const vy = py - op.pos[1];
+  const vz = pz - op.pos[2];
+
+  const distSq = vx * vx + vy * vy + vz * vz;
+  if (distSq > op.rangeSq || distSq < 1e-6) return false;
+
+  const flat = Math.hypot(vx, vz);
+  // Straight down has no azimuth to test — only the elevation band decides it.
+  if (flat > 1e-6 && (vx * op.fwdX + vz * op.fwdZ) / flat < op.cosHalfH) return false;
+  const elev = Math.atan2(vy, flat);
+  if (elev < op.elevLo || elev > op.elevHi) return false;
+
+  const dist = Math.sqrt(distSq);
+  const dx = vx / dist, dy = vy / dist, dz = vz / dist;
+  const tMax = dist - 1e-3;
+  for (let i = 0; i < occluders.length; i++) {
+    if (segmentHitsNode(occluders[i], op.pos[0], op.pos[1], op.pos[2], dx, dy, dz, tMax, op.skip[i])) {
+      return false;
+    }
+  }
+  return true;
+}
+
 /* ------------------------------------------------------------- grid solve -*/
 
 export interface CoverageContext {
   cams: SolvedCamera[];
+  op: SolvedOperator;
   occluders: OccluderNode[];
   transforms: Record<string, Transform>;
   machine: MachineConfig;
@@ -368,7 +465,13 @@ export function buildContext(
   const transforms = nodeTransforms(machine, rig);
   const occluders = buildOccluders(machine, transforms);
   const enabled = cameras.filter((c) => c.enabled);
-  return { cams: solveCameras(machine, enabled, transforms, occluders), occluders, transforms, machine };
+  return {
+    cams: solveCameras(machine, enabled, transforms, occluders),
+    op: solveOperator(machine, transforms, occluders),
+    occluders,
+    transforms,
+    machine,
+  };
 }
 
 /** Number of cameras that can see a single ground point. Used by the figure. */
@@ -378,6 +481,11 @@ export function coverageAt(ctx: CoverageContext, x: number, z: number): number {
     if (pointVisible(cam, ctx.occluders, x, SAMPLE_HEIGHT, z)) n++;
   }
   return n;
+}
+
+/** Whether the operator can see a single ground point from the cab. */
+export function operatorSeesAt(ctx: CoverageContext, x: number, z: number): boolean {
+  return operatorSees(ctx.op, ctx.occluders, x, SAMPLE_HEIGHT, z);
 }
 
 export const gridCells = () => Math.round(GRID.extent / GRID.cell);
@@ -391,12 +499,14 @@ export function solveCoverage(ctx: CoverageContext): CoverageResult {
   const cells = gridCells();
   const mask = new Uint8Array(cells * cells);
   const depth = new Uint8Array(cells * cells);
+  const state = new Uint8Array(cells * cells);
   const radius = ctx.machine.workingRadius;
   const radiusSq = radius * radius;
   const innerSq = ctx.machine.footprintRadius * ctx.machine.footprintRadius;
 
   let inRadius = 0;
-  let coveredInRadius = 0;
+  let operatorInRadius = 0;
+  let cameraOnlyInRadius = 0;
 
   for (let iz = 0; iz < cells; iz++) {
     const z = cellToWorld(iz, cells);
@@ -407,22 +517,35 @@ export function solveCoverage(ctx: CoverageContext): CoverageResult {
       for (let c = 0; c < ctx.cams.length; c++) {
         if (pointVisible(ctx.cams[c], ctx.occluders, x, SAMPLE_HEIGHT, z)) n++;
       }
+      const direct = operatorSees(ctx.op, ctx.occluders, x, SAMPLE_HEIGHT, z);
       depth[idx] = n;
-      mask[idx] = n > 0 ? 1 : 0;
+      mask[idx] = n > 0 || direct ? 1 : 0;
+      // The three states are exclusive and the operator wins the overlap, so
+      // blue only ever means "ground the cameras added" — never ground the
+      // operator could already see, which would flatter the package.
+      state[idx] = direct ? CellState.Operator : n > 0 ? CellState.Camera : CellState.Blind;
+
       const rSq = x * x + z * z;
       if (rSq <= radiusSq && rSq >= innerSq) {
         inRadius++;
-        if (n > 0) coveredInRadius++;
+        if (direct) operatorInRadius++;
+        else if (n > 0) cameraOnlyInRadius++;
       }
     }
   }
 
   const cellArea = GRID.cell * GRID.cell;
+  const div = inRadius > 0 ? inRadius : 1;
   return {
     mask,
     depth,
-    coveredFraction: inRadius > 0 ? coveredInRadius / inRadius : 0,
+    state,
+    operatorFraction: operatorInRadius / div,
+    cameraOnlyFraction: cameraOnlyInRadius / div,
+    coveredFraction: (operatorInRadius + cameraOnlyInRadius) / div,
     workingArea: inRadius * cellArea,
+    // Blind zones are ground NEITHER the operator nor a camera reaches — the
+    // only definition of "blind" that means anything to the person standing there.
     blindZones: findBlindZones(mask, cells, ctx),
   };
 }

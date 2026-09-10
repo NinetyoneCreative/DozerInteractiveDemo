@@ -162,7 +162,20 @@ export function StatsReadout() {
   const machineKey = useCoverageStore((s) => s.machineKey);
   const coverage = useCoverageStore((s) => s.coverage);
   const machine = MACHINES[machineKey];
-  const pct = coverage ? Math.round(coverage.coveredFraction * 100) : null;
+
+  // The three shares are rounded once, here, and everything below — the bar, the
+  // rows and the headline — is built from those same numbers. Deriving the
+  // headline separately would let it disagree with its own breakdown by a point.
+  const operatorPct = coverage ? Math.round(coverage.operatorFraction * 100) : 0;
+  const cameraPct = coverage ? Math.round(coverage.cameraOnlyFraction * 100) : 0;
+  const blindPct = Math.max(0, 100 - operatorPct - cameraPct);
+  const pct = coverage ? operatorPct + cameraPct : null;
+
+  const rows: { key: string; color: string; value: number; label: string }[] = [
+    { key: 'op', color: COLORS.operator, value: operatorPct, label: 'Operator sees from the cab' },
+    { key: 'cam', color: COLORS.coverage, value: cameraPct, label: 'Only the cameras reach' },
+    { key: 'blind', color: COLORS.warning, value: blindPct, label: 'Neither can see' },
+  ];
 
   return (
     <div>
@@ -181,18 +194,40 @@ export function StatsReadout() {
       </div>
 
       <div
-        className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-dozer-page"
+        className="mt-2.5 flex h-1.5 w-full overflow-hidden rounded-full bg-dozer-page"
         role="img"
-        aria-label={`${pct ?? 0} percent of the ${machine.workingRadius} metre working radius is covered`}
+        aria-label={
+          `Of the ${machine.workingRadius} metre working radius, the operator sees ` +
+          `${operatorPct} percent directly, the cameras add ${cameraPct} percent, ` +
+          `and ${blindPct} percent is seen by neither`
+        }
       >
-        <div
-          className="h-full rounded-full transition-[width] duration-200"
-          style={{ width: `${pct ?? 0}%`, backgroundColor: COLORS.coverage }}
-        />
+        {rows.map((r) => (
+          <div
+            key={r.key}
+            className="h-full transition-[width] duration-200"
+            style={{ width: `${r.value}%`, backgroundColor: r.color }}
+          />
+        ))}
       </div>
+
+      <ul className="mt-1.5 flex flex-col gap-0.5" aria-hidden="true">
+        {rows.map((r) => (
+          <li key={r.key} className="flex items-baseline gap-1.5 text-[11.5px] leading-snug">
+            <span
+              className="mt-[3px] inline-block h-2 w-2 shrink-0 rounded-[2px]"
+              style={{ backgroundColor: r.color }}
+            />
+            <span className="font-mono tabular-nums text-dozer-heading">{r.value}%</span>
+            <span className="text-dozer-body">{r.label}</span>
+          </li>
+        ))}
+      </ul>
+
       <p className="mt-1 text-[10.5px] leading-snug text-dozer-muted">
         Between the machine&rsquo;s {machine.footprintRadius} m footprint and the{' '}
-        {machine.workingRadius} m working radius.
+        {machine.workingRadius} m working radius. Direct sight is a modelled
+        seated arc, not a measured ISO 5006 study.
       </p>
 
       <BlindZoneList />
@@ -245,10 +280,11 @@ function BlindZoneList() {
  */
 function WorkerRoll() {
   const coverage = useCoverageStore((s) => s.workerCoverage);
+  const direct = useCoverageStore((s) => s.workerOperator);
   const selectedId = useCoverageStore((s) => s.selectedWorkerId);
   const onSelect = useCoverageStore((s) => s.selectWorker);
 
-  const seen = coverage.filter((n) => n > 0).length;
+  const seen = WORKERS.filter((_, i) => direct[i] || (coverage[i] ?? 0) > 0).length;
   const total = WORKERS.length;
 
   return (
@@ -266,7 +302,8 @@ function WorkerRoll() {
       <ul className="mt-1 flex flex-col gap-0.5">
         {WORKERS.map((w, i) => {
           const n = coverage[i] ?? 0;
-          const ok = n > 0;
+          const inSight = direct[i] ?? false;
+          const ok = inSight || n > 0;
           return (
             <li key={w.id}>
               <button
@@ -284,7 +321,7 @@ function WorkerRoll() {
                   aria-hidden="true"
                   className="mt-[5px] inline-block h-2 w-2 shrink-0"
                   style={{
-                    backgroundColor: ok ? COLORS.coverage : COLORS.warning,
+                    backgroundColor: inSight ? COLORS.operator : n > 0 ? COLORS.coverage : COLORS.warning,
                     // Different shape as well as different colour.
                     borderRadius: ok ? '9999px' : '1px',
                     transform: ok ? 'none' : 'rotate(45deg)',
@@ -292,9 +329,13 @@ function WorkerRoll() {
                 />
                 <span className="flex-1 text-dozer-body">
                   <span className="text-dozer-heading">{w.label}</span>{' '}
-                  {ok ? (
+                  {inSight ? (
                     <span className="text-dozer-muted">
-                      seen by {n} camera{n > 1 ? 's' : ''}
+                      in the operator&rsquo;s direct sight
+                    </span>
+                  ) : n > 0 ? (
+                    <span className="text-dozer-muted">
+                      on camera only, {n} camera{n > 1 ? 's' : ''}
                     </span>
                   ) : (
                     <strong className="font-medium" style={{ color: COLORS.warning }}>

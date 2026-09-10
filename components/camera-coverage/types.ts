@@ -71,6 +71,15 @@ export interface AxisLimits {
   rest: number;
 }
 
+/** Where the operator's eyes are, and which node the cab rides. */
+export interface OperatorConfig {
+  mount: string;
+  /** Eye point in the mount node's LOCAL space. */
+  eye: Vec3;
+  /** Facing relative to the mount node. */
+  yaw: number;
+}
+
 export interface MachineConfig {
   label: string;
   glb: string;
@@ -85,6 +94,7 @@ export interface MachineConfig {
    */
   footprintRadius: number;
   cameras: CameraConfig[];
+  operator: OperatorConfig;
   /**
    * Pivot of each articulating node, in its PARENT node's local space.
    * These mirror the node translations baked into the GLB — see README.
@@ -110,12 +120,27 @@ export interface RigState {
 }
 
 /** Result of one coverage solve over the ground grid. */
+/** What can see a given cell. Higher wins when they overlap. */
+export const enum CellState {
+  Blind = 0,
+  /** Only the cameras reach it — this is what the package adds. */
+  Camera = 1,
+  /** The operator can see it directly from the cab. */
+  Operator = 2,
+}
+
 export interface CoverageResult {
   /** grid.cells × grid.cells, row-major, indexed [iz * cells + ix]. 0 = uncovered. */
   mask: Uint8Array;
   /** Number of cameras that see each cell — drives the overlap read. */
   depth: Uint8Array;
-  /** Fraction of the working-radius disc that is covered, 0..1. */
+  /** CellState per cell: who sees it, operator taking priority over cameras. */
+  state: Uint8Array;
+  /** Fraction the operator can see unaided, 0..1. */
+  operatorFraction: number;
+  /** Fraction only the cameras reach — the package's contribution. */
+  cameraOnlyFraction: number;
+  /** Fraction of the working-radius disc that is covered by either, 0..1. */
   coveredFraction: number;
   /** Ground area inside the working radius, m². */
   workingArea: number;

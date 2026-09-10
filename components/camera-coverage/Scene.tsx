@@ -14,7 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { CAMERA_VIEW, COLORS, ENVIRONMENTS, GRID, MACHINES } from './config';
-import { buildContext, clamp, coverageAt, solveCoverage } from './coverage';
+import { buildContext, clamp, coverageAt, operatorSeesAt, solveCoverage } from './coverage';
 import type { CoverageContext } from './coverage';
 import { CameraRig } from './CameraRig';
 import { CoverageGround } from './CoverageGround';
@@ -66,6 +66,7 @@ export function Scene({ controlsRef, reducedMotion, touch, onReady }: SceneProps
   const selectWorker = useCoverageStore((s) => s.selectWorker);
   const setCoverage = useCoverageStore((s) => s.setCoverage);
   const setWorkerCoverage = useCoverageStore((s) => s.setWorkerCoverage);
+  const setWorkerOperator = useCoverageStore((s) => s.setWorkerOperator);
   const markInteracted = useCoverageStore((s) => s.markInteracted);
 
   const machine = MACHINES[machineKey];
@@ -91,19 +92,22 @@ export function Scene({ controlsRef, reducedMotion, touch, onReady }: SceneProps
       setCoverage(solveCoverage(ctx));
       const w = useCoverageStore.getState().workers;
       setWorkerCoverage(w.map(([wx, wz]) => coverageAt(ctx, wx, wz)));
+      setWorkerOperator(w.map(([wx, wz]) => operatorSeesAt(ctx, wx, wz)));
     };
     const since = performance.now() - lastSolve.current;
     if (solveTimer.current) clearTimeout(solveTimer.current);
     if (since >= GRID.throttleMs) run();
     else solveTimer.current = setTimeout(run, GRID.throttleMs - since);
     return () => { if (solveTimer.current) clearTimeout(solveTimer.current); };
-  }, [revision, machineKey, activeCameras, rig, setCoverage, setWorkerCoverage]);
+  }, [revision, machineKey, activeCameras, rig, setCoverage, setWorkerCoverage, setWorkerOperator]);
 
   // Moving a worker does not change coverage, so this only re-tests their cells.
   useEffect(() => {
     const ctx = ctxRef.current;
-    if (ctx) setWorkerCoverage(workers.map(([wx, wz]) => coverageAt(ctx, wx, wz)));
-  }, [workers, setWorkerCoverage]);
+    if (!ctx) return;
+    setWorkerCoverage(workers.map(([wx, wz]) => coverageAt(ctx, wx, wz)));
+    setWorkerOperator(workers.map(([wx, wz]) => operatorSeesAt(ctx, wx, wz)));
+  }, [workers, setWorkerCoverage, setWorkerOperator]);
 
   useEffect(() => { onReady?.(); }, [onReady]);
 
@@ -259,6 +263,7 @@ export function Scene({ controlsRef, reducedMotion, touch, onReady }: SceneProps
   const baseNode = machine.rig.type === 'slew' ? machine.rig.nodes.base : machine.rig.nodes.rear;
   const coverage = useCoverageStore((s) => s.coverage);
   const workerCoverage = useCoverageStore((s) => s.workerCoverage);
+  const workerOperator = useCoverageStore((s) => s.workerOperator);
   const env = ENVIRONMENTS[environment];
 
   return (
@@ -338,6 +343,7 @@ export function Scene({ controlsRef, reducedMotion, touch, onReady }: SceneProps
       <Workers
         positions={workers}
         coverage={workerCoverage}
+        operatorSees={workerOperator}
         selectedId={selectedWorkerId}
         touch={touch}
         reducedMotion={reducedMotion}

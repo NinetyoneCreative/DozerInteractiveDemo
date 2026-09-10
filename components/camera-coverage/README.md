@@ -53,6 +53,8 @@ Every unconfirmed value carries a `// PLACEHOLDER` comment in `config.ts`. In fu
 | `footprintRadius` per machine | `MACHINES.*` | Measured from the supplied GLBs; re-measure if you swap a model |
 | `WORKERS` start positions | `config.ts` | Chosen so both machines start with at least one worker seen and one in a blind zone |
 | `OCCLUSION.mountClearance` = 0.75 m | `config.ts` | Modelling constant, see *Occlusion* below |
+| `OPERATOR.hFov` / `vFov` / `pitch` | `config.ts` | **PLACEHOLDER** — a modelled seated arc, not a measured ISO 5006 study |
+| `MACHINES.*.operator.eye` | `config.ts` | **PLACEHOLDER** — fitted to the cab shell in each GLB, not to a seat reference point |
 
 `yaw` and `pitch` for every camera are exactly as specified in the brief and were
 not changed.
@@ -123,10 +125,14 @@ diverge.
 
 ## How coverage is solved
 
-`coverage.ts`, no three.js, ~25 ms for a full grid.
+`coverage.ts`, no three.js, ~19 ms for a full grid.
 
 A ground cell is covered if it falls inside **any** enabled camera's frustum **and**
 the ray from that camera to the cell is not blocked by machine geometry.
+
+Every cell also gets a second, independent test: can the **operator** see it directly
+from the cab? That gives three exclusive states per cell — see *The operator's own
+sight* below.
 
 - **Frustum** — a true rectangular pinhole frustum, `FOV.horizontal × FOV.vertical`,
   out to `RANGE.effective`. (The drawn wedge extends to `RANGE.max` and fades; the
@@ -135,7 +141,8 @@ the ray from that camera to the cell is not blocked by machine geometry.
   in each node's local space and inherit that node's articulation, so raising the
   loader arms really does throw a shadow across the ground ahead.
 - **Grid** — `GRID.extent` 40 m at `GRID.cell` 0.25 m = 160 × 160 = 25,600 cells. A full
-  solve is ~7 ms. It used to be 0.5 m and ~25 ms: the occlusion loop was building a
+  solve is ~19 ms, of which roughly a third is the operator pass. It used to be 0.5 m
+  and ~25 ms: the occlusion loop was building a
   string key (`"house:7"`) per box per ray to check the skip set, which was the entire
   cost. Typed-array masks made 4× the resolution 3× cheaper.
 - **Throttling** — solves run behind a dirty flag (`store.revision`) with leading
@@ -149,6 +156,49 @@ within `OCCLUSION.mountClearance` of a lens are excluded **for that camera only*
 everything beyond still occludes it normally. Real installs use a stand-off bracket
 positioned so the bodywork is not in the lens; this is the modelling equivalent.
 
+### The operator's own sight
+
+Green is the honest baseline the camera package is measured against. Each cell is
+classified into exactly one of three states, and **the operator wins the overlap**:
+
+| State | Colour | Meaning |
+|---|---|---|
+| `Operator` | green (`COLORS.operator`) | The operator can see this ground directly from the cab |
+| `Camera` | neon blue (`COLORS.coverage`) | **Only** the cameras reach it — this is what the package adds |
+| `Blind` | warning orange (`COLORS.warning`) | Neither the operator nor a camera can see it |
+
+Priority matters: if blue could also mean "ground the operator could already see",
+the blue area would flatter the product. It cannot. Every blue cell is ground that
+is invisible from the seat.
+
+The operator is solved with the same occluders as the cameras — the boom, the engine
+deck and the loader arms take chunks out of direct sight exactly as they do in the
+cab — and with the same `mountClearance` skip, since the eye point sits inside the
+cab's own collider. Two things differ:
+
+- **The arc is angular, not rectangular.** `OPERATOR.hFov` is 180°, and `tan(90°)`
+  has no finite value, so the cameras' tan-based frustum test cannot express it.
+  Direct sight uses an azimuth threshold (`cos` of the half-arc) plus an elevation
+  band centred on `OPERATOR.pitch`. That also matches what a head does: it sweeps,
+  it does not look through a rectangular window.
+- **Range** matches `RANGE.effective` by default (`OPERATOR.useCameraRange`). Direct
+  sight is not really range-limited; matching keeps the comparison about geometry
+  rather than about how far each one reaches.
+
+**This understates rearward direct sight.** The 180° forward hemisphere models a
+seated operator with normal head movement and does not model twisting round to look
+behind. Treat the split as indicative until someone runs a real ISO 5006 visibility
+study on the target machines — the figures in `OPERATOR` are the ones to replace.
+
+There is deliberately **no toggle** for the green layer. Unchecking all three cameras
+already leaves green plus warning — "what the operator has without the package" — and
+it does so consistently across the ground, the worker rings and the readout. A layer
+switch would have left a worker's green ring sitting on ground that had just gone
+blue underneath them.
+
+Workers carry the same three states on their ground ring, and the panel names each
+one in words so colour never carries the signal alone.
+
 ### The percentage
 
 "% of the working radius covered" is measured over the annulus between
@@ -156,9 +206,15 @@ positioned so the bodywork is not in the lens; this is the modelling equivalent.
 stands there, counting it as uncovered would understate the result, and it would
 flood-fill every seam into one meaningless ring through the middle.
 
+The stats card splits that total three ways — operator / cameras add / neither. The
+three shares are rounded once and the headline is their sum, so the headline can
+never disagree with its own breakdown.
+
 ### Blind zones
 
-Uncovered cells in that annulus are flood-filled into components. Anything at or
+Uncovered cells in that annulus are flood-filled into components. "Uncovered" here
+means **neither** the operator nor a camera reaches it — the only definition of blind
+that means anything to the person standing there. Anything at or
 above `GRID.minBlindZoneArea` (1.5 m²) is named by the sector its centroid falls in,
 and reported at its **nearest** approach — where a person first disappears, which is
 more useful than the centroid distance. Bearings are in the operator's frame: the
@@ -170,17 +226,18 @@ Two things give the zones their edges, and both are in `COVERAGE_STYLE`:
 
 - The 0.25 m grid, drawn with `NearestFilter` — interpolation would feather the
   seams into something softer than they actually are.
-- An explicit rim (`edgeAlpha`, `edgeLift`) on every covered/uncovered boundary,
-  so a zone has an outline rather than fading out.
+- An explicit rim (`edgeAlpha`, `edgeLift`) on every boundary between two states —
+  green/blue as hard as blue/warning — so a zone has an outline rather than fading out.
 
 Turn `edgeAlpha` down and the drawing goes back to a soft wash; that is the dial
 to reach for if it ever reads as too technical.
 
 ### Colour
 
-Coverage is **neon blue** (`COLORS.coverage`), overlap lifting towards
+Camera-only coverage is **neon blue** (`COLORS.coverage`), overlap lifting towards
 `COLORS.coverageOverlap` rather than shifting hue, so two cameras read as more of
-the same rather than a different state. It is a signal colour, not a brand one: it
+the same rather than a different state. Direct operator sight is **green**
+(`COLORS.operator`), at a flat alpha — there is no "two operators" to overlap. It is a signal colour, not a brand one: it
 has to hold up on a pale studio floor, dark asphalt and mid-brown dirt alike, which
 brand yellow does not. Brand yellow stays on the UI chrome so the panel still reads
 as Dozer.

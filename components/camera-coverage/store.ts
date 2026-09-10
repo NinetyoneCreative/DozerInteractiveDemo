@@ -30,8 +30,10 @@ interface CoverageStore {
   /** Which worker the panel is highlighting, or null. */
   selectedWorkerId: string | null;
   coverage: CoverageResult | null;
-  /** Cameras that can see each worker right now. 0 = standing in a blind zone. */
+  /** Cameras that can see each worker right now. 0 = no camera on them. */
   workerCoverage: number[];
+  /** Whether the operator can see each worker directly from the cab. */
+  workerOperator: boolean[];
   /** Bumped whenever the solver needs to run again. */
   revision: number;
   /** Bumped by reset() so the scene knows to put the orbit camera back. */
@@ -49,9 +51,9 @@ interface CoverageStore {
   setShowFrusta: (v: boolean) => void;
   setEnvironment: (e: EnvironmentKey) => void;
   /**
-   * Sets the starting machine, environment and all/single comparison without
-   * counting as user input, so an embed — or a slide — can open on a chosen
-   * configuration and still auto-rotate until someone actually touches it.
+   * Sets the starting machine and environment without counting as user input, so
+   * an embed can open on a chosen configuration and still auto-rotate until the
+   * visitor actually touches it.
    */
   initialize: (opts: {
     machine?: MachineKey;
@@ -62,6 +64,7 @@ interface CoverageStore {
   selectWorker: (id: string | null) => void;
   setCoverage: (c: CoverageResult) => void;
   setWorkerCoverage: (n: number[]) => void;
+  setWorkerOperator: (v: boolean[]) => void;
   markInteracted: () => void;
   reset: () => void;
 }
@@ -79,6 +82,7 @@ function initial(key: MachineKey) {
     selectedWorkerId: null,
     coverage: null,
     workerCoverage: WORKERS.map(() => 0),
+    workerOperator: WORKERS.map(() => false),
     revision: 0,
   };
 }
@@ -168,6 +172,7 @@ export const useCoverageStore = create<CoverageStore>((set) => ({
 
   setCoverage: (coverage) => set({ coverage }),
   setWorkerCoverage: (workerCoverage) => set({ workerCoverage }),
+  setWorkerOperator: (workerOperator) => set({ workerOperator }),
   markInteracted: () => set({ interacted: true }),
 
   // Resets the machine, the cameras AND the orbit position — the button says

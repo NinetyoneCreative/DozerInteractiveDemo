@@ -3,10 +3,11 @@
 /**
  * The draggable jobsite workers.
  *
- * Each worker's seen / not-seen state comes from the same solver function the
- * ground grid uses, evaluated at the worker's feet — so a worker standing in a
- * seam registers as not seen, and can never disagree with the coverage drawn
- * underneath them.
+ * Each worker's state comes from the same solver functions the ground grid uses,
+ * evaluated at the worker's feet — so a worker standing in a seam registers as
+ * not seen, and can never disagree with the coverage drawn underneath them.
+ * The ring carries the same three states as the ground: green where the operator
+ * can see them directly, blue where only a camera can, warning where neither can.
  *
  * The state is never signalled by colour alone: an unseen worker also gets a
  * pulsing ring and a floating alert marker, and the panel names them in words.
@@ -20,6 +21,8 @@ import { COLORS, WORKER, WORKERS } from './config';
 interface WorkersProps {
   positions: [number, number][];
   coverage: number[];
+  /** Whether the operator has direct sight of each worker from the cab. */
+  operatorSees: boolean[];
   selectedId: string | null;
   touch: boolean;
   reducedMotion: boolean;
@@ -30,6 +33,7 @@ interface WorkersProps {
 export function Workers({
   positions,
   coverage,
+  operatorSees,
   selectedId,
   touch,
   reducedMotion,
@@ -45,6 +49,7 @@ export function Workers({
           x={positions[i]?.[0] ?? w.start[0]}
           z={positions[i]?.[1] ?? w.start[1]}
           seen={coverage[i] ?? 0}
+          direct={operatorSees[i] ?? false}
           selected={selectedId === w.id}
           touch={touch}
           reducedMotion={reducedMotion}
@@ -60,6 +65,7 @@ function Worker({
   x,
   z,
   seen,
+  direct,
   selected,
   touch,
   reducedMotion,
@@ -69,17 +75,21 @@ function Worker({
   x: number;
   z: number;
   seen: number;
+  direct: boolean;
   selected: boolean;
   touch: boolean;
   reducedMotion: boolean;
   onPointerDown: (e: { stopPropagation: () => void }) => void;
 }) {
-  const covered = seen > 0;
+  // Three states, matching the ground exactly: the operator has them, only a
+  // camera has them, or nobody does. The operator wins the overlap, so blue on a
+  // worker always means "you would not see this person without the screen".
+  const covered = direct || seen > 0;
   const [hover, setHover] = useState(false);
   const ringRef = useRef<THREE.Mesh>(null);
   const alertRef = useRef<THREE.Group>(null);
   const h = WORKER.height;
-  const state = covered ? COLORS.coverage : COLORS.warning;
+  const state = direct ? COLORS.operator : seen > 0 ? COLORS.coverage : COLORS.warning;
 
   useFrame(({ clock }) => {
     if (reducedMotion) return;

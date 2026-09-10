@@ -297,21 +297,33 @@ export default function CameraCoverage({
       {/* Phone and tablet: no spare canvas to float over, so the controls stack.
           Hidden in fullscreen, where only the scene element is on screen. */}
       {!overlay && !fullscreen.active ? (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Card><StatsReadout /></Card>
-          <div className="flex flex-col gap-3">
-            <Card><MachineSwitch /></Card>
-            <Card><EnvironmentSwitch /></Card>
-            <Card><ArticulationControls /></Card>
-            <Card><CameraControls /></Card>
-            <Card><CameraEditControls /></Card>
-            <Card><ViewControls /></Card>
-          </div>
-          <div className="sm:col-span-2">
-            <SpecFootnote />
-          </div>
-        </div>
+        <StackedControls />
       ) : null}
+    </div>
+  );
+}
+
+/**
+ * Phone and tablet layout. Split out only so it can read `selectedCameraId` —
+ * the edit card renders nothing without a selection, and an empty Card around
+ * nothing is a visible empty box.
+ */
+function StackedControls() {
+  const selectedCameraId = useCoverageStore((s) => s.selectedCameraId);
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <Card><StatsReadout /></Card>
+      <div className="flex flex-col gap-3">
+        <Card><MachineSwitch /></Card>
+        <Card><EnvironmentSwitch /></Card>
+        <Card><ArticulationControls /></Card>
+        <Card><CameraControls /></Card>
+        {selectedCameraId ? <Card><CameraEditControls /></Card> : null}
+        <Card><ViewControls /></Card>
+      </div>
+      <div className="sm:col-span-2">
+        <SpecFootnote />
+      </div>
     </div>
   );
 }
@@ -453,9 +465,16 @@ function Legend({ floating = false }: { floating?: boolean }) {
       <span className="flex items-center gap-1 font-mono text-[9px] uppercase tracking-[0.08em] text-dozer-body sm:gap-1.5 sm:text-[10px] sm:tracking-[0.1em]">
         <span
           className="inline-block h-2 w-2 rounded-[2px] sm:h-2.5 sm:w-2.5"
+          style={{ backgroundColor: COLORS.operator }}
+        />
+        Operator sees
+      </span>
+      <span className="flex items-center gap-1 font-mono text-[9px] uppercase tracking-[0.08em] text-dozer-body sm:gap-1.5 sm:text-[10px] sm:tracking-[0.1em]">
+        <span
+          className="inline-block h-2 w-2 rounded-[2px] sm:h-2.5 sm:w-2.5"
           style={{ backgroundColor: COLORS.coverage }}
         />
-        Covered
+        Cameras add
       </span>
       <span className="flex items-center gap-1 font-mono text-[9px] uppercase tracking-[0.08em] text-dozer-body sm:gap-1.5 sm:text-[10px] sm:tracking-[0.1em]">
         <span
@@ -480,12 +499,15 @@ function ScreenReaderSummary() {
   const showAll = useCoverageStore((s) => s.showAllCameras);
   const rig = useCoverageStore((s) => s.rig);
   const workerCoverage = useCoverageStore((s) => s.workerCoverage);
+  const workerOperator = useCoverageStore((s) => s.workerOperator);
   const environment = useCoverageStore((s) => s.environment);
   const machine = MACHINES[machineKey];
 
   const text = useMemo(() => {
     if (!coverage) return 'Calculating camera coverage.';
-    const pct = Math.round(coverage.coveredFraction * 100);
+    const operatorPct = Math.round(coverage.operatorFraction * 100);
+    const cameraPct = Math.round(coverage.cameraOnlyFraction * 100);
+    const pct = operatorPct + cameraPct;
     const active = showAll
       ? cameras.filter((c) => c.enabled)
       : cameras.filter((c) => c.id === machine.singleCameraId && c.enabled);
@@ -495,20 +517,28 @@ function ScreenReaderSummary() {
     return [
       `${machine.label}, ${swingWord} ${Math.round(rig.swing)} degrees, arm at ${Math.round(rig.arm)} degrees.`,
       `${active.length} of ${cameras.length} cameras active, each ${FOV.horizontal} degrees wide with a ${RANGE.effective} metre effective range.`,
-      `${pct} percent of the ground between the ${machine.footprintRadius} metre machine footprint and the ${machine.workingRadius} metre working radius is covered.`,
+      `${pct} percent of the ground between the ${machine.footprintRadius} metre machine footprint and the ${machine.workingRadius} metre working radius is covered: ${operatorPct} percent the operator can see directly from the cab, and a further ${cameraPct} percent only the cameras reach. ${Math.max(0, 100 - pct)} percent is seen by neither.`,
+      'Direct sight is a modelled seated arc, not a measured visibility study.',
       zones.length
         ? `Blind zones: ${zones.map((z) => `${z.sector}, nearest edge ${z.distance.toFixed(1)} metres, ${z.area.toFixed(0)} square metres`).join('; ')}.`
         : 'No blind zone larger than 1.5 square metres inside the working radius.',
       `Environment: ${ENVIRONMENTS[environment].label}. Scenery only; it does not affect the coverage figure.`,
       (() => {
-        const seenCount = workerCoverage.filter((n) => n > 0).length;
-        const unseen = WORKERS.filter((_, i) => (workerCoverage[i] ?? 0) === 0).map((w) => w.label);
-        return unseen.length === 0
-          ? `All ${WORKERS.length} workers are seen by at least one camera.`
-          : `${seenCount} of ${WORKERS.length} workers are seen. Standing in a blind zone: ${unseen.join(', ')}.`;
+        const isSeen = (i: number) => (workerOperator[i] ?? false) || (workerCoverage[i] ?? 0) > 0;
+        const seenCount = WORKERS.filter((_, i) => isSeen(i)).length;
+        const unseen = WORKERS.filter((_, i) => !isSeen(i)).map((w) => w.label);
+        const onCameraOnly = WORKERS
+          .filter((_, i) => !(workerOperator[i] ?? false) && (workerCoverage[i] ?? 0) > 0)
+          .map((w) => w.label);
+        const cameraLine = onCameraOnly.length
+          ? ` Visible only on camera, not from the cab: ${onCameraOnly.join(', ')}.`
+          : '';
+        return (unseen.length === 0
+          ? `All ${WORKERS.length} workers are seen.`
+          : `${seenCount} of ${WORKERS.length} workers are seen. Standing where neither the operator nor a camera can see them: ${unseen.join(', ')}.`) + cameraLine;
       })(),
     ].join(' ');
-  }, [coverage, cameras, showAll, rig, machine, workerCoverage, environment]);
+  }, [coverage, cameras, showAll, rig, machine, workerCoverage, workerOperator, environment]);
 
   return (
     <p aria-live="polite" className="sr-only">
