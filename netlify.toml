@@ -1,0 +1,26 @@
+# Static export — Netlify just serves the /out directory.
+[build]
+  command = "npm run build"
+  publish = "out"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# This is an internal sales tool, not a marketing page. Keep it out of indexes
+# at the header level as well as in the document head.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+# The GLBs and fonts are content-addressed by the build and never change in
+# place, so they can be cached hard. A rep who has opened the deck once has it.
+[[headers]]
+  for = "/models/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

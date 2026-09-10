@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   Fonts
+
+   Everything is self-hosted from /public/fonts. Nothing is fetched at runtime
+   and nothing is fetched at build time either, because this deck has to open on
+   a hotel wifi that is barely working.
+
+   GOTHAM IS LICENSED and cannot ship in this repo. To turn it on:
+
+     1. Drop the licensed webfont files into /public/fonts as
+          Gotham-Book.woff2    (400)
+          Gotham-Medium.woff2  (500)
+          Gotham-Bold.woff2    (700)
+     2. Delete the two slashes that open the comment below.
+
+   That is the whole change. Nothing else in the app references a font family by
+   name — every rule goes through --font-gotham or the Tailwind `font-sans`
+   token — so Gotham takes over the deck the moment those blocks are live, and
+   Montserrat drops back to being the fallback it already is.
+   ========================================================================== */
+
+/*
+@font-face {
+  font-family: 'Gotham';
+  src: url('/fonts/Gotham-Book.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gotham';
+  src: url('/fonts/Gotham-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gotham';
+  src: url('/fonts/Gotham-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+*/
+
+/* Montserrat ships as a single variable file covering the whole 400–700 range,
+   so one request serves every weight the deck uses. */
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/montserrat-latin-var.woff2') format('woff2-variations');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Share Tech Mono';
+  src: url('/fonts/share-tech-mono-latin.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* 'Gotham' is first and simply does not resolve until the blocks above are
+     uncommented, at which point every consumer picks it up with no other edit. */
+  --font-gotham: 'Gotham', 'Montserrat', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html,
+body {
+  background: #f4f7f9;
+  color: #5c6374;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* The stage is a fixed 16:9 canvas that scales to fit. Nothing should ever
+   scroll the window — a scrollbar appearing mid-presentation shifts the whole
+   letterbox sideways. */
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* The presenter window is an ordinary scrolling document, so it opts back in. */
+body[data-scroll='true'] {
+  overflow: auto;
+}
+
+@layer components {
+  /* Mono, uppercase, letter-spaced, small. Used for eyebrows, step counters,
+     stats and timestamps — the brief's four mono cases. */
+  .eyebrow {
+    @apply font-mono text-[13px] uppercase tracking-eyebrow text-dozer-body;
+  }
+  .eyebrow-yellow {
+    @apply font-mono text-[13px] uppercase tracking-eyebrow text-dozer-yellow;
+  }
+  .card {
+    @apply rounded-card border border-dozer-muted/40 bg-dozer-card;
+  }
+}
+
+/* Keyboard focus is a yellow ring everywhere. The deck is driven by keyboard,
+   so focus must never be invisible. */
+:focus-visible {
+  outline: 2px solid #fdac13;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
