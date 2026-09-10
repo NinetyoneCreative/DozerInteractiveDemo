@@ -229,11 +229,6 @@ export function TimelineSlide({
   return (
     <SlideFrame eyebrow={eyebrow} title={title}>
       <div className="relative pt-6">
-        {/* The spine, at the vertical centre of the marker dots. The icons sit
-            above it and the copy below, so the row reads as a line of stations
-            rather than as six stacked cards. */}
-        <div className="absolute left-0 right-0 top-[86px] h-px bg-dozer-muted/40" />
-
         {/* Column count follows the data. It was pinned at 5, so adding the
             day-21 read-out silently wrapped the last phase onto a second row
             underneath the spine. */}
@@ -247,8 +242,28 @@ export function TimelineSlide({
                 <div className="flex h-[64px] items-end">
                   {p.icon ? <Icon name={p.icon} size={52} /> : null}
                 </div>
+                {/*
+                  The spine is built from a segment inside EACH marker row rather
+                  than as one absolutely positioned line across the whole block.
+
+                  It used to be a single line at a hard-coded `top`, which was
+                  correct until the icons were added above it and then sat 30px
+                  clear of the dots — the sort of number that is right on the day
+                  it is written and silently wrong after the next layout change.
+                  Centring a segment in the row that also holds the dot makes the
+                  two align by construction.
+
+                  Each segment runs the width of its column plus the 20px gap so
+                  the joins are invisible; the last one stops at its own edge,
+                  which is where the block ends.
+                */}
                 <div className="relative mt-5 flex h-4 items-center">
-                  <span className="h-3.5 w-3.5 rounded-full border-2 border-dozer-yellow bg-dozer-card" />
+                  <div
+                    className={`absolute top-1/2 h-px -translate-y-1/2 bg-dozer-muted/40 ${
+                      i === phases.length - 1 ? 'left-0 right-0' : 'left-0 -right-5'
+                    }`}
+                  />
+                  <span className="relative h-3.5 w-3.5 rounded-full border-2 border-dozer-yellow bg-dozer-card" />
                 </div>
                 <p className="mt-5 font-mono text-[13px] uppercase tracking-eyebrow text-dozer-yellow">
                   {p.when}
