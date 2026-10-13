@@ -65,22 +65,27 @@ export function CoverSlide() {
 export function AgendaSlide() {
   return (
     <SlideFrame eyebrow="This call" title="What we are going to do">
-      <div className="grid grid-cols-4 gap-x-5 gap-y-6">
+      {/* 3x3, because there are nine chapters. A 4-wide grid left a single
+          orphan card on a third row, which reads as a mistake rather than as a
+          list. */}
+      <div className="grid grid-cols-3 gap-x-5 gap-y-5">
+        {/* Number, title, time. The one-line summary each card used to carry was
+            a second description of a chapter the rep is about to present in
+            full — on an agenda, the title IS the guide. */}
         {CHAPTERS.map((c, i) => (
           <Reveal key={c.slug} delay={0.04 + i * 0.035}>
-            <Card className="flex h-[184px] flex-col p-6">
+            <Card className="flex h-[126px] flex-col p-6">
               <div className="flex items-baseline justify-between">
-                <span className="font-mono text-[26px] tabular-nums text-dozer-yellow">
+                <span className="font-mono text-[22px] tabular-nums text-dozer-yellow">
                   {String(c.index + 1).padStart(2, '0')}
                 </span>
                 <span className="font-mono text-[11px] uppercase tracking-eyebrow text-dozer-muted">
                   {formatClock(c.seconds)}
                 </span>
               </div>
-              <h3 className="mt-3 text-[20px] font-medium leading-tight text-dozer-heading">
+              <h3 className="mt-auto text-[20px] font-medium leading-tight text-dozer-heading">
                 {c.title}
               </h3>
-              <p className="mt-2 text-[13.5px] leading-snug text-dozer-body">{c.summary}</p>
             </Card>
           </Reveal>
         ))}
@@ -188,7 +193,9 @@ export function PointsSlide({
       <div className={`grid gap-6 ${columns === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
         {points.map((p, i) => (
           <Reveal key={p.title} delay={0.08 + i * 0.06}>
-            <Card className="flex h-full min-h-[300px] flex-col p-9">
+            {/* 300px was sized for three-sentence bodies. They are one line now, and a
+                card that tall around one line reads as something missing. */}
+            <Card className="flex h-full min-h-[196px] flex-col p-8">
               {/* Icon first where the point has one. The yellow dash it replaces
                   was a placeholder for exactly this. */}
               {p.icon ? (
@@ -413,19 +420,19 @@ export function CloseSlide() {
       stat: 'Today',
       icon: 'machine',
       title: 'Pick the machine',
-      body: 'One, chosen by you. The one you worry about, not the one that demos well.',
+      body: 'The one you worry about, not the one that demos well.',
     },
     {
       stat: 'This week',
       icon: 'owner',
       title: 'Name the owner',
-      body: 'One person who will read the weekly report. Without a name, a pilot ends in a shrug.',
+      body: 'Without a name, a pilot ends in a shrug.',
     },
     {
       stat: 'Next week',
       icon: 'calendar',
       title: 'An hour with your equipment manager',
-      body: 'The machine, your cost codes, and a date for the install. That is the whole scoping call.',
+      body: 'Machine, cost codes, install date. That is the whole call.',
     },
   ];
 
@@ -434,7 +441,7 @@ export function CloseSlide() {
       <div className="grid grid-cols-3 gap-6">
         {next.map((p, i) => (
           <Reveal key={p.title} delay={0.06 + i * 0.07}>
-            <Card className="flex h-full min-h-[290px] flex-col p-9">
+            <Card className="flex h-full min-h-[210px] flex-col p-8">
               <p className="eyebrow-yellow">{p.stat}</p>
               <h3 className="mt-5 text-[28px] font-medium leading-tight text-dozer-heading">
                 {p.title}

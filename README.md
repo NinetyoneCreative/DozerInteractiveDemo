@@ -267,10 +267,11 @@ above, then re-check the figures the coverage chapter quotes — the slide copy 
 specific percentages and they come from the solver, not from the script.
 
 The deck consumes it through `initialMachine` / `initialEnvironment` /
-`initialShowAllCameras` and keeps it mounted across all three steps of chapter 3, so
-switching steps does not re-download a 4MB GLB or reset the orbit camera. The deck also
-warms the module on idle during chapter 1 — see `useWarmCoverageModule` in
-`components/stage/Deck.tsx`.
+`initialShowAllCameras`. It is now a single slide late in the deck, after the product
+tour and the dashboard, so the rep drives the single-camera comparison and the wheel
+loader from its own controls rather than from separate slides — the speaker notes walk
+both. The deck warms the module on idle during the opening chapter, so it is ready long
+before anyone reaches it — see `useWarmCoverageModule` in `components/stage/Deck.tsx`.
 
 ### Coverage is three colours, not one
 

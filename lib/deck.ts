@@ -145,23 +145,10 @@ const SPEC: ChapterSpec[] = [
         slide: { kind: 'cover' },
         notes: [
           'Hold here while everyone joins. Do not start talking into a half-full room.',
-          'Names and roles round the table before you advance. You want to know whether you are talking to safety, to ops, or to both, because chapters 4 and 5 land differently depending on the answer.',
+          'Open on the mechanism, not a statistic — they have their own incident log and they trust it more than yours. Every machine on site has ground the operator physically cannot see from the seat. Mirrors help, a spotter helps; neither watches every side at once, and neither is there on the afternoon everyone is tired.',
+          'Then ask: "when you have had a close call on this site, where was the person standing?" Stop talking. Whatever they say is the thing you point at in the 3D slide later.',
+          'Names and roles round the table before you advance. You want to know whether you are talking to safety, to ops, or to both, because the safety and productivity halves land differently depending on the answer.',
           'If it is a safety-led room, tell them up front you will also show the productivity side, and that it is the same hardware. That is the thing they will not be expecting.',
-        ],
-      },
-      {
-        eyebrow: 'The problem',
-        title: 'The operator cannot see the person',
-        seconds: 90,
-        slide: {
-          kind: 'statement',
-          lead: 'Every machine on your site has ground around it that the operator physically cannot see from the seat.',
-          sub: 'Mirrors help. A spotter helps. Neither is looking at every side of the machine at the same time, and neither is there on the afternoon everyone is tired.',
-        },
-        notes: [
-          'Do not open with a statistic. They have heard the statistics and they have their own incident log, which they trust more than yours.',
-          'Open with the mechanism instead: this is a geometry problem before it is a behaviour problem. The operator is not careless, they are sitting in a cab with steel between them and the ground.',
-          'Ask: "When you have had a close call on this site, where was the person standing?" Then stop talking. Whatever they say is the thing you point at in chapter 3.',
         ],
       },
       {
@@ -171,8 +158,8 @@ const SPEC: ChapterSpec[] = [
         slide: { kind: 'agenda' },
         notes: [
           'Set the shape so nobody is waiting for the pricing slide while you are three chapters away from it.',
-          'Say the running time out loud and mean it. If you said thirty minutes, chapter 8 needs to arrive at minute twenty-eight.',
-          'Flag chapter 3 as the interactive one. Tell them you will hand it over and let them move the machine themselves. People sit forward when they know that is coming.',
+          'Say the running time out loud and mean it. If you said thirty minutes, the pilot slide needs to arrive at minute twenty-eight.',
+          'Flag the 3D slide as the one they drive. It comes after the product tour, and telling them it is coming makes them sit forward for the rest.',
         ],
       },
     ],
@@ -217,7 +204,7 @@ const SPEC: ChapterSpec[] = [
         notes: [
           'The alert is in the cab, while the machine is moving. That is the entire safety product in one sentence.',
           'Proximity detection means the system knows a person is inside the danger zone, not just that something moved on a screen. That distinction is what keeps operators from tuning it out.',
-          'Watch for the alarm-fatigue objection, because it is the good one. The honest answer is that an alert nobody trusts gets ignored, which is why the threshold matters and why chapter 3 exists — the coverage has to be real or the alerting is theatre.',
+          'Watch for the alarm-fatigue objection, because it is the good one. The honest answer is that an alert nobody trusts gets ignored, which is why the threshold matters and why the 3D slide exists — the coverage has to be real or the alerting is theatre.',
         ],
       },
       {
@@ -227,7 +214,12 @@ const SPEC: ChapterSpec[] = [
         slide: {
           kind: 'statement',
           lead: 'The same cameras that keep people away from the machine also tell you what the machine did all day.',
-          sub: 'Safety and Productivity are not two installs, two invoices, or two decisions. They are two suites on one set of hardware, and both are live today.',
+          sub: 'Two suites. One set of hardware. Both live today.',
+          image: {
+            src: '/product/machine-plan.jpg',
+            alt: 'Top-down view of the excavator with its proximity zones drawn around it',
+            caption: 'One machine, one install',
+          },
         },
         notes: [
           'This is the hinge of the entire call. Slow down.',
@@ -239,79 +231,6 @@ const SPEC: ChapterSpec[] = [
   },
 
   /* ══ 3 ══════════════════════════════════════════════════════════════════ */
-  {
-    slug: 'coverage',
-    title: 'What the cameras actually see',
-    summary: 'The interactive 3D coverage module. Hand it over.',
-    steps: [
-      {
-        eyebrow: 'Coverage',
-        title: 'The full package on an excavator',
-        seconds: 180,
-        interactive: true,
-        slide: {
-          kind: 'coverage',
-          machine: 'excavator',
-          environment: 'studio',
-          cameras: 'all',
-          callout: 'Green is what the operator can already see. Blue is only what the cameras add — 46 points on top of it.',
-        },
-        notes: [
-          'Open with the question, over the live scene rather than over a slide: "ask every vendor you are evaluating to show you the ground their cameras do NOT cover." It costs you nothing and most of the market cannot answer it. Then: here is ours, and you can drive it yourself.',
-          'Press I to hand over control, then genuinely hand it over — offer them the mouse if you are in the room, or talk them through it if you are not.',
-          'Read the three colours out loud before anything else, because the whole chapter depends on them. Green is ground the operator can already see from the seat. Blue is ground ONLY the cameras reach. Orange is ground neither of them reaches.',
-          'The split for this machine is 37% green, 46% blue, 17% orange. Say the 46 — that is the number the package is actually worth. And say the 17 before they find it.',
-          'Where green and blue overlap, the module gives it to the operator. Blue can never be ground they could already see, so it cannot flatter us. Worth saying: it is the difference between a coverage claim and an honest one.',
-          'Then: swing the house and the seams swing with it, because the cameras are bolted to the house. And drag a worker into a seam — the panel says in words that nobody can see them.',
-          'The seams are wider than the nominal spec — around 15 to 22 degrees at eight metres rather than a clean 10 — because the cameras are mounted metres apart rather than stacked at the machine centre. Say that before they find it. Volunteering your own worst number is the most credible thing you will do on this call.',
-          'One caveat to volunteer if anyone leans on the green figure: direct sight is a modelled seated arc, not a measured ISO 5006 study, and it does not model twisting round to look behind — so it understates rearward sight. The blue number is the conservative side of that, which is the right way round.',
-          'Press I again to give the keyboard back to the deck before you advance.',
-        ],
-      },
-      {
-        eyebrow: 'Comparison',
-        title: 'One camera is not a camera system',
-        seconds: 120,
-        interactive: true,
-        slide: {
-          kind: 'coverage',
-          machine: 'excavator',
-          environment: 'street',
-          cameras: 'single',
-          callout: 'One camera adds 12 points. Three add 46. Ground nobody can see goes from 17% to 51%.',
-        },
-        notes: [
-          'The slide arrives already switched to one camera — you do not have to find the toggle mid-sentence. Let them look at it before you say anything.',
-          'The green does not move: 37% either way, because the operator sees what they see. What changes is the blue — 46 points down to 12 — and the orange, which goes from 17% to 51%. Half the working radius, seen by nobody.',
-          'Most sites already have a camera on something. This is the slide that explains why that is not the same purchase.',
-          'Then press I and switch “Single front” back to “All cameras” in the panel. The jump in blue is the argument; you do not need to add anything to it.',
-          'If anyone asks which camera is left on: it is the front-right unit, not a reversing camera. The point is one versus three, not which one.',
-        ],
-      },
-      {
-        eyebrow: 'Coverage',
-        title: 'The loader’s blind zone is in front',
-        seconds: 120,
-        interactive: true,
-        slide: {
-          kind: 'coverage',
-          machine: 'wheelLoader',
-          environment: 'dirt',
-          cameras: 'all',
-          callout: 'The operator sees just 26% from this cab. Raise the arms and what the cameras add drops from 62 points to 48.',
-        },
-        notes: [
-          'Start with the green: 26%. That is all a loader operator has from the seat, against 37% on the excavator — the cab sits behind the arms. It is the machine where the package is worth the most, and the number makes that case for you.',
-          'Then raise the lift arms. What the cameras add falls from 62 points to 48, and ground nobody can see doubles, 12% to 26%.',
-          'That is a real, well-known hazard on that machine and the module does not hide it. The arms and the bucket sit directly in front of the only forward-facing camera.',
-          'Say plainly: we could have left this out of the demo. We did not, because you will find it in week one of a pilot and it is better that you hear it from me now.',
-          'This is usually the moment a sceptical equipment manager starts believing the rest of the numbers.',
-        ],
-      },
-    ],
-  },
-
-  /* ══ 4 ══════════════════════════════════════════════════════════════════ */
   {
     slug: 'safety',
     title: 'Safety suite',
@@ -328,17 +247,17 @@ const SPEC: ChapterSpec[] = [
             {
               title: 'In-cab operator alerts',
               icon: 'alert',
-              body: 'The operator is told while the machine is moving, in the seat, not in a report on Friday.',
+              body: 'In the seat, while the machine is moving.',
             },
             {
               title: 'Proximity detection',
               icon: 'depth',
-              body: 'Depth sensing means the system knows how far away a person is, so the alert has a threshold instead of firing at every shadow.',
+              body: 'Depth sensing, so the alert has a distance behind it.',
             },
             {
               title: 'Event recording',
               icon: 'clip',
-              body: 'Every alert has video attached to it. Nobody has to reconstruct what happened from memory.',
+              body: 'Every alert keeps its clip.',
             },
           ],
         },
@@ -364,48 +283,18 @@ const SPEC: ChapterSpec[] = [
         },
         notes: [
           'Bring the alarm-fatigue objection up yourself if they have not. It is the single most common reason these systems get ripped out, and pretending it is not real damages you.',
-          'Tie it back to chapter 3: this is why we showed you the gaps. Coverage you can verify is what makes a threshold trustworthy.',
+          'Promise them the proof rather than asserting it: the 3D slide later lets them check the geometry themselves. Coverage you can verify is what makes a threshold trustworthy.',
           'Then drop to the log. Point at the row for EX-220 on Sep 4 — blind zone entry, 2.4 metres, swing stopped. The value is not the list, it is that there is a clip: you are not asking a superintendent to recall a Thursday afternoon.',
           'Point at the LD-311 and DZ-402 rows and say: this is where a toolbox talk stops being generic. You are not telling the crew to be careful, you are showing them a machine and a time of day.',
           'Good question to ask here: "Has your team ever turned something like this off?" If the answer is yes, you have just found the whole objection you need to beat, and they told you what it is.',
           'Sample data — say so if anyone asks. Never present these as another customer’s numbers.',
-        ],
-      },
-      {
-        eyebrow: 'For the safety director',
-        title: 'What changes on your desk',
-        seconds: 80,
-        slide: {
-          kind: 'points',
-          columns: 3,
-          points: [
-            {
-              title: 'Leading indicators, not lagging',
-              icon: 'leading',
-              body: 'Proximity alerts are near-misses you can count before anyone is hurt. Most sites only have the incidents.',
-            },
-            {
-              title: 'Toolbox talks with evidence',
-              icon: 'evidence',
-              body: 'A specific machine, a specific window, a specific clip. Crews argue with generalities and not with footage.',
-            },
-            {
-              title: 'A defensible record',
-              icon: 'record',
-              body: 'When you are asked what you had in place, the answer has dates on it.',
-            },
-          ],
-        },
-        notes: [
-          'This is the slide for the safety director specifically. If they are not on the call, move through it briskly.',
-          'The leading-indicator point is the strongest one you have with this audience. Most of them are managing a programme on lagging data and know it.',
-          'Do not claim a compliance outcome or an insurance outcome you cannot back up. If they ask about insurance, offer to find out rather than guessing on the call.',
+          'If a safety director is in the room, land the three things this changes on their desk: near-misses they can count before anyone is hurt, toolbox talks with a specific machine and clip instead of a generic warning, and a record with dates on it when someone asks what they had in place.',
         ],
       },
     ],
   },
 
-  /* ══ 5 ══════════════════════════════════════════════════════════════════ */
+  /* ══ 4 ══════════════════════════════════════════════════════════════════ */
   {
     slug: 'in-cab',
     title: 'In the cab',
@@ -455,7 +344,7 @@ const SPEC: ChapterSpec[] = [
         notes: [
           'Use this one to make the point about quiet. The front feed sits there with no boxes and no border for most of the clip, because there is nothing in front of the machine.',
           'A system that decorates every frame with boxes trains the operator to ignore it. This one says nothing until it has something to say.',
-          'If they asked the alarm-fatigue question back in chapter 4, this is where you close that loop — point at the empty feed and say: that is what restraint looks like.',
+          'If they asked the alarm-fatigue question in the safety chapter, this is where you close that loop — point at the empty feed and say: that is what restraint looks like.',
         ],
       },
       {
@@ -470,7 +359,7 @@ const SPEC: ChapterSpec[] = [
         notes: [
           'Wait for the border to go red — it does, twice in the loop. Do not talk over it.',
           'The escalation is three states, and they are worth naming out loud: nothing, amber, red. It is on the panel edge rather than in the middle of the picture, so the operator picks it up peripherally without taking their eyes off the work.',
-          'The distance readout next to each box is the honest part. It is not "something is close" — it is 2.6 metres, at 132 degrees. That number comes from the depth sensor, which is what you were describing back in chapter 2.',
+          'The distance readout next to each box is the honest part. It is not "something is close" — it is 2.6 metres, at 132 degrees. That number comes from the depth sensor, which is what you were describing in the system diagram.',
           'Good question to ask here: "Where would you want that threshold set on your sites?" It gets them designing the deployment in their own head.',
         ],
       },
@@ -503,38 +392,18 @@ const SPEC: ChapterSpec[] = [
           'Back to the whole screen and let one full pass play. This is the summary step — you are showing the ladder rather than any single panel.',
           'Narrate it once, lightly: quiet, amber as they close, red at the worst of it, then back down as they clear. Then stop and let it run.',
           'The de-escalation is the half people forget to look at. A system that goes red and stays red is one the operator switches off by Thursday.',
-          'Close the chapter here and go to productivity. The line back to chapter 2 is: this is the alert path, and it never left the machine.',
+          'Close the chapter here and go to productivity. The line back to the system diagram is: this is the alert path, and it never left the machine.',
         ],
       },
     ],
   },
 
-  /* ══ 6 ══════════════════════════════════════════════════════════════════ */
+  /* ══ 5 ══════════════════════════════════════════════════════════════════ */
   {
     slug: 'productivity',
     title: 'Productivity & Analytics',
     summary: 'The same hardware, doing a second job.',
     steps: [
-      {
-        eyebrow: 'Second suite',
-        title: 'You already paid for these cameras',
-        seconds: 70,
-        slide: {
-          kind: 'statement',
-          lead: 'The hardware that watches for people is watching the machine the rest of the time.',
-          sub: 'Utilization, job cost codes and written reports come off the same install. No second box, no second decision.',
-          image: {
-            src: '/product/machine-plan.jpg',
-            alt: 'Top-down view of the excavator with its proximity zones drawn around it',
-            caption: 'The same machine, the same install',
-          },
-        },
-        notes: [
-          'The transition matters. You have spent four chapters on safety, and safety buyers do not automatically care about utilization.',
-          'The bridge is the invoice: whatever safety costs, it costs less per machine when it is also the productivity system.',
-          'If there is an ops or project executive on the call, this is where they wake up. Watch for it and slow down when it happens.',
-        ],
-      },
       {
         eyebrow: 'What it measures',
         title: 'Hours, and where they went',
@@ -547,19 +416,19 @@ const SPEC: ChapterSpec[] = [
               stat: 'Metered',
               title: 'Utilization',
               icon: 'gauge',
-              body: 'Engine hours against working hours, per machine and per fleet. Measured off the machine, not off a timesheet filled in at the end of the week.',
+              body: 'Engine hours against working hours, off the machine.',
             },
             {
               stat: 'Coded',
               title: 'Job cost codes',
               icon: 'costcode',
-              body: 'Hours land against the code the work was booked to, so the job cost report and the machine agree with each other.',
+              body: 'Hours against the code the work was booked to.',
             },
             {
               stat: 'Written',
               title: 'AI reports',
               icon: 'report',
-              body: 'A weekly summary in prose that names what moved, what it cost, and what is worth looking at on Monday.',
+              body: 'A weekly summary that names what to look at.',
             },
           ],
         },
@@ -583,7 +452,7 @@ const SPEC: ChapterSpec[] = [
     ],
   },
 
-  /* ══ 7 ══════════════════════════════════════════════════════════════════ */
+  /* ══ 6 ══════════════════════════════════════════════════════════════════ */
   {
     slug: 'dashboard',
     title: 'The dashboard',
@@ -631,7 +500,7 @@ const SPEC: ChapterSpec[] = [
         },
         notes: [
           'Take idle hours first, not utilization. Idle is the number with money attached to it and it is down 13.3%.',
-          'Then proximity alerts down 34%. Point out that this is the safety suite and the productivity suite on the same screen, from the same install, which is the argument from chapter 2 arriving as evidence.',
+          'Then proximity alerts down 34%. Point out that this is the safety suite and the productivity suite on the same screen, from the same install, which is the one-install argument arriving as evidence.',
           'The badge colours follow the meaning, not the sign — idle falling is green. If someone notices, that is a good sign they are actually reading it.',
         ],
       },
@@ -692,7 +561,41 @@ const SPEC: ChapterSpec[] = [
         notes: [
           'This is the strongest slide in the chapter. The fleet number is 67.6% and it describes no machine on the site.',
           'Ten points between the best and worst excavator on comparable work is a conversation with a superintendent, not a capital request. That framing matters — you are not selling them more iron.',
-          'Land the chapter here: the reason any of this exists is the install from chapter 2. One set of cameras. Then advance to rollout.',
+          'Land the chapter here: the reason any of this exists is one install. One set of cameras. Then advance to the 3D slide, which is where they get to check the geometry for themselves.',
+        ],
+      },
+    ],
+  },
+
+  /* ══ 7 ══════════════════════════════════════════════════════════════════ */
+  {
+    slug: 'coverage',
+    title: 'What the cameras actually see',
+    summary: 'One interactive slide. Hand it over and let them drive it.',
+    steps: [
+      {
+        eyebrow: 'Coverage',
+        title: 'The full package on an excavator',
+        seconds: 240,
+        interactive: true,
+        slide: {
+          kind: 'coverage',
+          machine: 'excavator',
+          environment: 'studio',
+          cameras: 'all',
+          callout:
+            'Green is what the operator can already see. Blue is only what the cameras add — 46 points on top of it.',
+        },
+        notes: [
+          'This is one slide because it is one tool. Everything that used to be three slides is a control on this screen: you drive the comparison and the second machine from here, in whatever order the room wants them.',
+          'Open with the question: "ask every vendor you are evaluating to show you the ground their cameras do NOT cover." It costs you nothing and most of the market cannot answer it. Then: here is ours, and you can drive it yourself. Press I and genuinely hand it over.',
+          'Read the three colours out loud before anything else. Green is ground the operator can already see from the seat. Blue is ground ONLY the cameras reach. Orange is ground neither reaches. The split here is 37% green, 46% blue, 17% orange — say the 46, that is what the package is worth, and say the 17 before they find it.',
+          'Where green and blue overlap the module gives it to the operator, so blue can never be ground they could already see. That is the difference between a coverage claim and an honest one.',
+          'Swing the house and the seams swing with it, because the cameras are bolted to the house. Drag a worker into a seam and the panel says in words that nobody can see them.',
+          'THE COMPARISON, when you want it: switch “All cameras” to “Single front”. Green does not move — 37% either way — but blue falls from 46 points to 12, and orange goes from 17% to 51%. Half the working radius, seen by nobody. That is the argument against the reversing camera they already own. Switch it back.',
+          'THE SECOND MACHINE, if they run loaders: switch to the wheel loader. The operator sees just 26% from that cab against 37% on the excavator, because it sits behind the arms — then raise the lift arms and what the cameras add falls from 62 points to 48. It is the machine where the package is worth the most.',
+          'One caveat to volunteer if anyone leans on the green figure: direct sight is a modelled seated arc, not a measured ISO 5006 study, and it does not model twisting round to look behind, so it understates rearward sight. The blue number is the conservative side of that, which is the right way round.',
+          'Press I again to give the keyboard back to the deck before you advance.',
         ],
       },
     ],
@@ -715,17 +618,17 @@ const SPEC: ChapterSpec[] = [
             {
               title: 'The machine, for a window',
               icon: 'machine',
-              body: 'Fitting happens on your yard, on one machine, in one visit. We work to the schedule you give us, not the other way round.',
+              body: 'One machine, one visit, on your yard.',
             },
             {
               title: 'One person who knows the fleet',
               icon: 'person',
-              body: 'Someone who can tell us which machine matters and what it actually does. Usually an equipment manager, and usually for an hour.',
+              body: 'An equipment manager, for about an hour.',
             },
             {
               title: 'Your cost codes',
               icon: 'costcode',
-              body: 'So the productivity side reports in your language from the first week instead of ours.',
+              body: 'So week one reports in your language, not ours.',
             },
           ],
         },
@@ -733,6 +636,7 @@ const SPEC: ChapterSpec[] = [
           'Downtime is the objection here and it is the real one. Answer it directly and do not inflate the answer to be safe — an equipment manager will know if you have.',
           'The cost codes ask does double duty: it is genuinely needed, and it quietly commits them to thinking about their own data in your system.',
           'If they push on scheduling, offer to work around a shutdown or a wet week. Flexibility costs you nothing here and removes the last easy no.',
+          'Say what it costs them to run, because it is almost nothing: no app for the operator to open, nothing for the foreman to file. The one real ask is that somebody owns the weekly report — without a name, a pilot ends in a shrug. Ask who that would be and write it down.',
         ],
       },
       {
@@ -786,37 +690,6 @@ const SPEC: ChapterSpec[] = [
           'Day 45 is the whole pilot, so sell that date hardest — it is not a checkpoint, it is the decision. The day-21 read-out is what stops it arriving as a surprise.',
         ],
       },
-      {
-        eyebrow: 'Fit',
-        title: 'It has to survive contact with the site',
-        seconds: 80,
-        slide: {
-          kind: 'points',
-          columns: 3,
-          points: [
-            {
-              title: 'Nothing for the operator to do',
-              icon: 'operator',
-              body: 'No app to open, no button to remember. The alert finds them in the seat.',
-            },
-            {
-              title: 'Nothing for the foreman to file',
-              icon: 'clipboard',
-              body: 'The hours and the events are captured without anyone writing them down.',
-            },
-            {
-              title: 'One person owns the dashboard',
-              icon: 'owner',
-              body: 'Someone has to read the weekly report for it to be worth anything. Pick them before we start, not after.',
-            },
-          ],
-        },
-        notes: [
-          'The third point is the one that decides whether a pilot renews, and most vendors will not say it out loud. Say it.',
-          'If nobody owns the report, the pilot ends with a shrug regardless of how good the data was. Get a name on the call.',
-          'Ask directly: "Who would that be?" A named person here is worth more than any objection you handle in the next five minutes.',
-        ],
-      },
     ],
   },
 
@@ -858,6 +731,7 @@ const SPEC: ChapterSpec[] = [
       },
     ],
   },
+
 ];
 
 /* ── Derived structure ───────────────────────────────────────────────────────
